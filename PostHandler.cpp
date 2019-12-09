@@ -277,7 +277,7 @@ std::string PostHandler::handleRequest(std::string& request) {
             serv["status"] = server.on;
             ret.push_back(serv);
         }
-        //TODO: frontend servers
+        //TODO: frontend server status
         return sendOk(ret.dump());
     } else if (path == adminTogglePath) {
         std::string data = findData(request);
@@ -285,10 +285,20 @@ std::string PostHandler::handleRequest(std::string& request) {
         json j = json::parse(data);
         std::string status = j["status"];
         std::string address = j["address"];
-        if (status == "on") {
-            turn_off_node(address);
+        std::string type = j["type"];
+        if (type == "Backend") {
+            if (status == "on") {
+                turn_off_node(address);
+            } else {
+                turn_on_node(address);
+            }
         } else {
-            turn_on_node(address);
+            //TODO: toggle frontend
+            if (status == "on") {
+
+            } else {
+
+            }
         }
         json p;
         p["message"] = "PASS";

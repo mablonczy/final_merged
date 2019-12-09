@@ -65,8 +65,9 @@
             $('.toggleButton').on('click', function (event) {
                 var status = $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text();
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
+                var type = $(event.currentTarget.parentElement.parentElement).find('.serverType').text();
                 if (status === "On") {
-                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '"}', function (data) {
+                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
                         $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
                     });
                 } else {
@@ -78,7 +79,7 @@
             $('.contentButton').on('click', function (event) {
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
                 var server = $(event.currentTarget.parentElement.parentElement).find('th').text();
-                $.post("/web/admin/content", '{""address":"' + address + '"}', function (data) {
+                $.post("/web/admin/content", '{"address":"' + address + '"}', function (data) {
                     //parse returned json to create table rows
                 });
                 $('#contentModal').find('.modal-title').text("Tablet Content: Server " + server);
