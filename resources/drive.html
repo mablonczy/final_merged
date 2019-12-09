@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js bundled with Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <title>PennCloud - Drive</title>
+    <link rel="icon" href="https://drive.google.com/uc?id=1hqo5MPULC2NYNVwEcRoJJ_MmQMYttVyM" sizes="32x32" type="image/png">
+    <style>
+        html,
+        body {
+            height: 100vh;
+        }
+    </style>
+    <script>
+        $(function () {
+            function objectifyForm(formArray) {//serialize data function
+                var returnArray = {};
+                for (var i = 0; i < formArray.length; i++) {
+                    returnArray[formArray[i]['name']] = formArray[i]['value'];
+                }
+                returnArray['current'] = $('.breadcrumb-item.active').data('path');
+                return returnArray;
+            }
+
+            $('#passwordForm').on('submit', function (event) {
+                event.preventDefault();
+                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $('#passwordModal').modal('hide');
+            });
+            $('#logOutForm').on('submit', function (event) {
+                event.preventDefault();
+                $.post("/web/logout");
+                window.location.replace("/web");
+            });
+            $('#new-path').tooltip('disable');
+            $('#new-name').tooltip('disable');
+            $('#folder-name').tooltip('disable');
+
+            var resetString = '<div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div>';
+            var rowString = '<div class="row bg-light d-flex justify-content-center text-center"><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div></div>';
+            var folderString = '<div class="dropdown">\n' +
+                '                    <a class="btn btn-transparent" href="#" role="button" data-toggle="dropdown"\n' +
+                '                        aria-haspopup="true" aria-expanded="false">\n' +
+                '                        <figure>\n' +
+                '                            <img src="https://drive.google.com/uc?id=1T0ZsDYDLdYBQCT2YlN9CxhN3DyxWn8GV" width="84" height="84" class="pull-right mt-3" alt="">\n' +
+                '                            <figcaption class="text-white-50 mb-3"></figcaption>\n' +
+                '                        </figure>\n' +
+                '                    </a>\n' +
+                '                    <div class="dropdown-menu folder">\n' +
+                '                        <a class="dropdown-item openButton">Open</a>\n' +
+                '                        <a class="dropdown-item renameButton" data-toggle="modal" data-target="#renameModal">Rename</a>\n' +
+                '                        <a class="dropdown-item moveButton" data-toggle="modal" data-target="#moveModal">Move</a>\n' +
+                '                        <a class="dropdown-item deleteButton" data-toggle="tooltip" data-placement="right"\n' +
+                '                            title="This action cannot be undone.">Delete</a>\n' +
+                '                    </div>\n' +
+                '                </div>';
+            var fileString = '<div class="dropdown">\n' +
+                '                    <a class="btn btn-transparent" href="#" role="button" data-toggle="dropdown"\n' +
+                '                        aria-haspopup="true" aria-expanded="false">\n' +
+                '                        <figure>\n' +
+                '                            <img src="https://drive.google.com/uc?id=1qO69ctUTlkLPm3HzSaAXRyQbxn5HYDEq" width="84" height="84" class="pull-right mt-3" alt="">\n' +
+                '                            <figcaption class="text-white-50 mb-3"></figcaption>\n' +
+                '                        </figure>\n' +
+                '                    </a>\n' +
+                '                    <div class="dropdown-menu file">\n' +
+                '                        <a class="dropdown-item downloadButton">Download</a>\n' +
+                '                        <a class="dropdown-item renameButton" data-toggle="modal" data-target="#renameModal">Rename</a>\n' +
+                '                        <a class="dropdown-item moveButton" data-toggle="modal" data-target="#moveModal">Move</a>\n' +
+                '                        <a class="dropdown-item deleteButton" href="#" data-toggle="tooltip" data-placement="right"\n' +
+                '                            title="This action cannot be undone.">Delete</a>\n' +
+                '                    </div>\n' +
+                '                </div>';
+
+            function checkEmpty() {
+                var row = $('#parentContainer').children().last();
+                var col = $(row).children().last();
+                if ($(col).children().length !== 0) {
+                    $('#parentContainer').append(rowString)
+                }
+            }
+
+            function insertGraphic(type, name) {
+                var row = $('#parentContainer').children().last();
+                var col = $(row).children();
+                $(col).each(function () {
+                    if ($(this).children().length === 0) {
+                        var found = true;
+                        if (type === 'folder') {
+                            $(this).html(folderString)
+                        } else {
+                            $(this).html(fileString)
+                        }
+                        $(this).find('figcaption').text(name);
+                        return false
+                    }
+                })
+            }
+
+            $('#folderForm').on('submit', function (event) {
+                event.preventDefault();
+                var folderName = $(this).find('textarea').val();
+                $.post("/web/drive/newfolder", JSON.stringify(objectifyForm($(this).serializeArray())), function (data) {
+                    if (data.message === "PASS") {
+                        checkEmpty();
+                        insertGraphic('folder', folderName);
+                        $('#folderModal').modal('hide')
+                    } else {
+                        $('#folder-name').tooltip('enable');
+                        $('#folder-name').tooltip('show');
+                        $('#folder-name').tooltip('disable');
+                    }
+                });
+            });
+            $('#uploadForm').on('submit', function (event) {
+                event.preventDefault();
+                var fileName = $(this).find('.selected').text();
+                file = $('input[type=file]')[0].files[0];
+                fr = new FileReader();
+                var content;
+                fr.onload = function () {
+                   content = fr.result;
+                   // content = content.substring(content.indexOf(',') + 1);
+                    console.log(content);
+                    $.post("/web/drive/upload", '{"current": "'+ $('.breadcrumb-item.active').data('path') + '", "name": "' + fileName +'", "content": "' + content + '"}', function (data) {
+                        console.log("Successful upload.");
+                        checkEmpty();
+                        insertGraphic('file', fileName);
+                        $('#uploadModal').modal('hide')
+                    });
+                };
+                fr.readAsDataURL(file);
+            });
+            $('#displayRow').on('click', '.downloadButton', function (event) {
+                var fileName = $(event.currentTarget.parentElement.parentElement).find('figcaption').text();
+                $.post("/web/drive/download", '{"current": "'+ $('.breadcrumb-item.active').data('path') + '", "name": "' + fileName +'"}', function (data) {
+                    var a = document.createElement("a");
+                    a.href = data.file;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click(); //Downloaded file
+                    document.body.removeChild(a);
+                });
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+            $('#displayRow').on('click', '.deleteButton', function (event) {
+                var type;
+                if ($(event.currentTarget.parentElement).hasClass('folder')) {
+                    type = "folder";
+                } else {
+                    type = "file";
+                }
+                var text = $(event.currentTarget.parentElement.parentElement).find('figcaption').text();
+                $.post("/web/drive/delete", '{"current": "'+ $('.breadcrumb-item.active').data('path') + '", "type": "' + type + '", "name": "' + text +'"}', function (data) {
+                    console.log(data);
+                });
+                $(event.currentTarget).tooltip('dispose');
+                $(event.currentTarget.parentElement.parentElement).remove();
+            });
+            var toRename;
+            $('#displayRow').on('click', '.renameButton', function (event) {
+                toRename = $(event.currentTarget.parentElement.parentElement).find('figcaption');
+                if ($(event.currentTarget.parentElement).hasClass('folder')) {
+                    $('#renameForm').find('.input-type').attr('value', 'folder');
+                } else {
+                    $('#renameForm').find('.input-type').attr('value', 'file');
+                }
+                $('#renameForm').find('.input-name').attr('value', $(toRename).text());
+            });
+            $('#renameForm').on('submit', function (event) {
+                event.preventDefault();
+                var text = $(this).find('textarea').val();
+                $.post("/web/drive/rename", JSON.stringify(objectifyForm($(this).serializeArray())), function (data) {
+                    if (data.message === "PASS") {
+                        $(toRename).text(text);
+                        $('#renameModal').modal('hide')
+                    } else {
+                        $('#new-name').tooltip('enable');
+                        $('#new-name').tooltip('show');
+                        $('#new-name').tooltip('disable');
+                    }
+                });
+            });
+            var toMove;
+            $('#displayRow').on('click', '.moveButton', function (event) {
+                if ($(event.currentTarget.parentElement).hasClass('folder')) {
+                    $('#moveForm').find('.input-type').attr('value', 'folder');
+                } else {
+                    $('#moveForm').find('.input-type').attr('value', 'file');
+                }
+                toMove = event.currentTarget.parentElement.parentElement;
+                $('#moveForm').find('.input-name').attr('value', $(toMove).find('figcaption').text());
+            });
+            $('#moveForm').on('submit', function (event) {
+                event.preventDefault();
+                $.post("/web/drive/move", JSON.stringify(objectifyForm($(this).serializeArray())), function (data) {
+                    if (data.message === "PASS") {
+                        $(toMove).remove();
+                        $('#moveModal').modal('hide');
+                    } else {
+                        $('#new-path').tooltip('enable');
+                        $('#new-path').tooltip('show');
+                        $('#new-path').tooltip('disable');
+                    }
+                });
+            });
+            $('.custom-file-input').on('change', function () {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+            var breadCrumbString = '<li class="breadcrumb-item active" aria-current="page"></li>';
+            var replaceBreadcrumb = '<a class="text-primary" type="submit"></a>';
+            function getPageData(json) {
+                if (!json) {
+                    json = '{"current": "'+ $('.breadcrumb-item.active').data('path') + '"}';
+                }
+                $.post("/web/drive", json, function (data) {
+                    $.each(data.folders, function (key, value) {
+                        checkEmpty();
+                        insertGraphic('folder', value);
+                    });
+                    $.each(data.files, function (key, value) {
+                        checkEmpty();
+                        insertGraphic('file', value);
+                    });
+                });
+            }
+            getPageData();
+            $('#displayRow').on('click', '.openButton', function (event) {
+                var folderName = $(event.currentTarget.parentElement.parentElement).find('figcaption').text();
+                var active = $('.breadcrumb-item.active');
+                var path = $(active).data('path');
+                var text = $(active).text();
+                $('#displayRow').html(resetString);
+                getPageData('{"current": "'+ path + '/' + folderName + '"}');
+                $(active).html(replaceBreadcrumb).find('a').text(text);
+                $(active).removeClass('active');
+                var newBC = $($.parseHTML(breadCrumbString));
+                $(newBC).text(folderName);
+                $(newBC).data('path', path + '/' + folderName);
+                $('.breadcrumb').append(newBC);
+            });
+            $('.breadcrumb').on('click', 'a', function (event) {
+                event.preventDefault();
+                $('#displayRow').html(resetString);
+               getPageData('{"current": "'+ $(event.currentTarget.parentElement).data('path') + '"}');
+               $(event.currentTarget.parentElement).addClass('active');
+                $(event.currentTarget).removeClass('text-primary');
+                $(event.currentTarget.parentElement).nextAll().remove();
+            });
+        });
+
+    </script>
+</head>
+
+<body class="bg-secondary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand text-primary" href="#">
+            <img src="https://drive.google.com/uc?id=1hqo5MPULC2NYNVwEcRoJJ_MmQMYttVyM" width="30" height="30" class="d-inline-block align-top" alt="">
+            PennCloud
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav mr-auto">
+                <a class="nav-item nav-link" href="/web/home">Home</a>
+                <a class="nav-item nav-link" href="/web/mail">Email</a>
+                <a class="nav-item nav-link active" href="#">Drive<span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="#">Admin Console</a>
+            </div>
+            <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"
+                data-target="#passwordModal"> Change
+                Password </button>
+            <button type="button" class="btn btn-primary my-2 my-sm-0" data-toggle="modal" data-target="#logOutModal">
+                Log Out </button>
+        </div>
+    </nav>
+    <div class="container-fluid bg-light">
+        <div class="row d-flex justify-content-center mb-3">
+            <img src="https://drive.google.com/uc?id=1N9Xc75LsmWiyHepBW5j88QPZzD5l7KGH" width="84" height="84" class="pull-right mt-3" alt="">
+            <h1 class="display-3 text-primary mt-1">Drive</h1>
+        </div>
+        <div class="row justify-content-around">
+            <div class="col-10">
+                <button type="button" class="btn btn-outline-primary mb-1" data-toggle="modal"
+                    data-target="#folderModal" id="newFolder">
+                    Create new folder </button>
+                <button type="button" class="btn btn-outline-primary mb-1" data-toggle="modal"
+                    data-target="#uploadModal" id="newFile">
+                    Upload file </button>
+            </div>
+        </div>
+        <div class="row justify-content-around">
+            <div class="col-10">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item active" aria-current="page" data-path="/root">root</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid d-flex flex-column bg-light" id="parentContainer">
+        <div class="row bg-light d-flex justify-content-center text-center" id="displayRow">
+            <div class="col-2 bg-dark">
+            </div>
+            <div class="col-2 bg-dark">
+            </div>
+            <div class="col-2 bg-dark">
+            </div>
+            <div class="col-2  bg-dark">
+            </div>
+            <div class="col-2  bg-dark">
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid d-flex h-100 flex-column bg-light">
+        <div class="row justify-content-center d-flex h-100">
+            <div class="col-10 bg-dark">
+            </div>
+        </div>
+    </div>
+    <!-- Folder Modal -->
+    <div class="modal fade" id="folderModal" tabindex="-1" role="dialog" aria-labelledby="folderModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="folderModalLabel">Choose a name for your new folder.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="folderForm" action="">
+                    <input type="hidden" name="type" class="input-type" value="folder">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="folder-name" class="col-form-label">Name:</label>
+                            <textarea class="form-control" name="folder-name" id="folder-name" data-toggle="tooltip"
+                                      data-placement="bottom" title="Name already exists. Try again."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create folder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Upload Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Choose a file to upload.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="uploadForm" action="">
+                    <input type="hidden" name="filename" class="input-type" value="file" id="file-name">
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="inputGroupFile01"
+                                    aria-describedby="inputGroupFileAddon01">
+                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Move Modal -->
+    <div class="modal fade" id="moveModal" tabindex="-1" role="dialog" aria-labelledby="moveModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moveModalLabel">Where would you like to move the file/folder to? Provide
+                        an absolute path.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="moveForm" action="">
+                    <input type="hidden" name="type" class="input-type">
+                    <input type="hidden" name="current-name" class="input-name">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="new-path" class="col-form-label">New path:</label>
+                            <textarea class="form-control" name="new-path" id="new-path" placeholder="/root/Test" data-toggle="tooltip"
+                                data-placement="bottom" title="Path invalid. Try again."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Move</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Rename Modal -->
+    <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renameModalLabel">What would you like to rename to?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="renameForm" action="">
+                    <input type="hidden" name="type" class="input-type">
+                    <input type="hidden" name="current-name" class="input-name">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="new-name" class="col-form-label">New name:</label>
+                            <textarea class="form-control" name="new-name" id="new-name" placeholder="For files, please include extension." data-toggle="tooltip"
+                                      data-placement="bottom" title="Path invalid. Try again."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Rename</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Log Out Modal -->
+    <div class="modal fade" id="logOutModal" tabindex="-1" role="dialog" aria-labelledby="logOutModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logOutModalLabel">Log out of PennCloud</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="logOutForm">
+                    <div class="modal-body">
+                        <a class="text-danger font-weight-bold">Are you sure you want to log out?</a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Log Out</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-small" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="passwordForm">
+                    <div class="modal-body">
+                        <a>What would you like to change your password to?</a>
+                        <label for="inputPassword" class="sr-only">Password</label>
+                        <input type="password" name="password" id="inputPassword" class="form-control mb-3 mt-3" placeholder="Password"
+                               required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

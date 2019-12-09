@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js bundled with Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <title>PennCloud - Email</title>
+    <link rel="icon" href="https://drive.google.com/uc?id=1hqo5MPULC2NYNVwEcRoJJ_MmQMYttVyM" sizes="32x32" type="image/png">
+    <style>
+        html,
+        body {
+            height: 100vh;
+        }
+    </style>
+    <script>
+        $(function () {
+            function objectifyForm(formArray) {//serialize data function
+                var returnArray = {};
+                for (var i = 0; i < formArray.length; i++) {
+                    returnArray[formArray[i]['name']] = formArray[i]['value'];
+                }
+                return returnArray;
+            }
+            $('#passwordForm').on('submit', function (event) {
+                event.preventDefault();
+                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $('#passwordModal').modal('hide');
+            });
+            $('#logOutForm').on('submit', function (event) {
+                event.preventDefault();
+                $.post("/web/logout");
+                window.location.replace("/web");
+            });
+            var mailString = '<button type="button" class="btn btn-primary btn-block mt-2 mb-2" data-toggle="modal" data-target="#recievedModal" data-subject="" data-time="" data-sender="" data-content=""></button>';
+            function getEmails() {
+                $.post("/web/mail", function (data) {
+                    $.each(data, function(key, value) {
+                        var newMail = $($.parseHTML(mailString));
+                        $(newMail).data('sender', value.sender);
+                        $(newMail).data('subject', value.subject);
+                        $(newMail).data('time', value.time);
+                        $(newMail).data('content', value.content);
+                        var buttonString = "From: " + value.sender + " Subject: " + value.subject + " Received on: " + value.time;
+                        $(newMail).html(buttonString);
+                        $('#mailContainer').append(newMail);
+                    });
+                });
+            }
+            getEmails();
+            var currentButton;
+            $('#recievedModal').on('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                var button = $(event.relatedTarget);
+                currentButton = button;
+                // Extract info from data-* attributes
+                var content = button.data('content');
+                var sender = button.data('sender');
+                var time = button.data('time');
+                var subject = button.data('subject');
+                // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                var modal = $(this);
+                modal.find('.modal-title').text("Subject: " + subject);
+                modal.find('#senderRow').text("From: " + sender);
+                modal.find('#timeRow').text("Received on: " + time);
+                modal.find('#contentRow').text(content);
+                modal.find('#deleteSender').attr('value', sender);
+                modal.find('#deleteSubject').attr('value', subject);
+                modal.find('#deleteTime').attr('value', time);
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+            $('#sendForm').on('submit', function (event) {
+                console.log("sending");
+                event.preventDefault();
+                $.post("/web/mail/send", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $('#composeModal').find('.form-control').val('');
+                $('#composeModal').modal('hide');
+            });
+            $('#deleteForm').on('submit', function (event) {
+                console.log("deleting");
+                event.preventDefault();
+                $.post("/web/mail/delete", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $('#recievedModal').modal('hide');
+                $(currentButton).remove();
+            });
+            $('#reply').on('click', function (event) {
+                var recipient = $('#deleteSender').val();
+                var subject = $('#deleteSubject').val();
+                $('#recievedModal').modal('hide');
+                $('#composeModal').find('.form-control').val('');
+                $('#composeModal').find("#recipient-name").val(recipient);
+                $('#composeModal').find('#message-subject').val("RE: " + subject);
+                setTimeout(function() {
+                    $('#composeModal').modal('show');
+                }, 500);
+            });
+            $('#forward').on('click', function (event) {
+                var content = $('#contentRow').text();
+                var subject = $('#deleteSubject').val();
+                $('#recievedModal').modal('hide');
+                $('#composeModal').find('.form-control').val('');
+                $('#composeModal').find("#message-text").val(content);
+                $('#composeModal').find('#message-subject').val("FWD: " + subject);
+                setTimeout(function() {
+                    $('#composeModal').modal('show');
+                }, 500);
+            });
+            $('#refreshButton').on('click', function (event) {
+                $('#mailContainer').html('');
+                getEmails();
+            });
+        });
+
+    </script>
+</head>
+
+<body class="bg-secondary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand text-primary" href="#">
+            <img src="https://drive.google.com/uc?id=1hqo5MPULC2NYNVwEcRoJJ_MmQMYttVyM" width="30" height="30" class="d-inline-block align-top" alt="">
+            PennCloud
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav mr-auto">
+                <a class="nav-item nav-link" href="/web/home">Home</a>
+                <a class="nav-item nav-link active" href="#">Email<span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="/web/drive">Drive</a>
+                <a class="nav-item nav-link" href="#">Admin Console</a>
+            </div>
+            <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"
+                data-target="#passwordModal"> Change
+                Password </button>
+            <button type="button" class="btn btn-primary my-2 my-sm-0" data-toggle="modal" data-target="#logOutModal">
+                Log Out </button>
+        </div>
+    </nav>
+    <div class="container-fluid bg-light">
+        <div class="row d-flex justify-content-center">
+            <img src="https://drive.google.com/uc?id=1lzffXH6GRO2LTu5ldI7ZT6jyUEVib2CT" width="100" height="100" class="pull-right" alt="">
+            <h1 class="display-3 text-primary">Mail</h1>
+        </div>
+        <div class="row justify-content-around">
+            <div class="col-10">
+                <button type="button" class="btn btn-outline-primary mb-1" data-toggle="modal"
+                    data-target="#composeModal">
+                    Compose New Email </button>
+                <button type="button" class="btn btn-outline-dark mb-1" id="refreshButton">
+                    Get New Emails </button>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid d-flex h-100 flex-column bg-light">
+        <div class="row justify-content-around">
+            <div class="col-10 bg-dark" id="mailContainer">
+            </div>
+
+        </div>
+        <div class="row justify-content-around d-flex h-100">
+            <div class="col-10 bg-dark">
+            </div>
+        </div>
+    </div>
+    <!-- Mail modal-->
+    <div class="modal fade" id="recievedModal" tabindex="-1" role="dialog" aria-labelledby="recievedModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recievedModalTitle">Message from:</h5><br>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 id="senderRow"></h5>
+                    <hr>
+                    <h5 id ="timeRow"></h5>
+                    <hr>
+                    <p id="contentRow"></p>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" action="">
+                        <input type="hidden" name="sender" id="deleteSender">
+                        <input type="hidden" name="subject" id="deleteSubject">
+                        <input type="hidden" name="time" id="deleteTime">
+                        <button type="submit" class="btn btn-danger" data-toggle="tooltip"
+                                data-placement="top" title="This action cannot be undone." id="deleteButton">Delete</button>
+                    </form>
+                    <button type="button" class="btn btn-primary" id="forward">Forward</button>
+                    <button type="button" class="btn btn-primary" id="reply">Reply</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Compose Modal-->
+    <div class="modal fade" id="composeModal" tabindex="-1" role="dialog" aria-labelledby="composeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="composeModalLabel">New Email</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="sendForm">
+                <div class="modal-body">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Recipient:</label>
+                            <input type="text" name="recipients" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-subject" class="col-form-label">Subject:</label>
+                            <input type="text" name="subject" class="form-control" id="message-subject">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Message:</label>
+                            <textarea class="form-control" name="content" rows="12" id="message-text"></textarea>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Send email</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Log Out Modal -->
+    <div class="modal fade" id="logOutModal" tabindex="-1" role="dialog" aria-labelledby="logOutModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-small modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logOutModalLabel">Log out of PennCloud</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="logOutForm">
+                    <div class="modal-body">
+                        <a class="text-danger font-weight-bold">Are you sure you want to log out?</a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Log Out</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-small" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="passwordForm">
+                    <div class="modal-body">
+                        <a>What would you like to change your password to?</a>
+                        <label for="inputPassword" class="sr-only">Password</label>
+                        <input type="password" name="password" id="inputPassword" class="form-control mb-3 mt-3" placeholder="Password"
+                               required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
