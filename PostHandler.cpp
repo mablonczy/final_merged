@@ -78,7 +78,6 @@ std::string PostHandler::handleRequest(std::string& request) {
             return sendOk(fail.dump());
         }
     } else if (path == mailPath) {
-        //TODO: modify this to work with MailClient
         emailClient.initialize();
         std::vector<email> mails;
         std::string status = emailClient.listEmails(get_usr_from_cookie(Server::bigTableClient, cookie), mails);
@@ -143,8 +142,8 @@ std::string PostHandler::handleRequest(std::string& request) {
         data = data.substr(0, data.find_last_of('}') + 1);
         json j = json::parse(data);
         std::string reqPath = j["current"];
-        //TODO: get username
-        driveClient.initialize("fake");
+        std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
+        driveClient.initialize(user);
         std::map<std::string, std::vector<std::string>> current_contents;
         std::string status = driveClient.display(reqPath, current_contents);
         if (status == BACKEND_DEAD) {
