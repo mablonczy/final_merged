@@ -26,8 +26,7 @@
         body {
             height: 100vh;
         }
-
-        .col-6,
+        
         .jumbotron {
             min-width: 330px;
         }
@@ -59,10 +58,31 @@
                 $.post("/web/logout");
                 window.location.replace("/web");
             });
-            $.post("/web/admin", function (event) {
-               //parse returned json to create table rows
+            var rowString = '<tr>\n' +
+                '                                <th scope="row" class="align-middle serverId">1</th>\n' +
+                '                                <td class="align-middle serverAddress">localhost:5000</td>\n' +
+                '                                <td class="align-middle serverType">Backend</td>\n' +
+                '                                <td class="align-middle serverStatus">On</td>\n' +
+                '                                <td class="align-middle serverToggle"><button class="btn btn-danger toggleButton">Toggle</button></td>\n' +
+                '                                <td class="align-middle serverLoad">64 kB</td>\n' +
+                '                                <td class="align-middle serverContent"><button class="btn btn-primary contentButton">Content</button></td>\n' +
+                '                            </tr>';
+            $.post("/web/admin", function (data) {
+                $.each(data, function(key, value) {
+                    var row = $($.parseHTML(rowString));
+                    $(row).find('.serverId').text(value.id);
+                    $(row).find('.serverAddress').text(value.address);
+                    $(row).find('.serverType').text(value.type);
+                    $(row).find('.serverLoad').text(value.load);
+                    $(row).find('.serverStatus').text(value.status);
+                    if (value.type !== "Backend") {
+                        $(row).find('.serverLoad').html('');
+                        $(row).find('.serverContent').html('');
+                    }
+                    $('#displayTable').append(row);
+                });
             });
-            $('.toggleButton').on('click', function (event) {
+            $('#displayTable').on('click', '.toggleButton', function (event) {
                 var status = $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text();
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
                 var type = $(event.currentTarget.parentElement.parentElement).find('.serverType').text();
@@ -71,16 +91,28 @@
                         $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
                     });
                 } else {
-                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '"}', function (data) {
+                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
                         $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
                     });
                 }
             });
-            $('.contentButton').on('click', function (event) {
+            var modalRowString = '<tr>\n' +
+                '                                    <td class="align-middle modalRow"></td>\n' +
+                '                                    <td class="align-middle modalCol"></td>\n' +
+                '                                    <td class="align-middle modalContent"></td>\n' +
+                '                                </tr>';
+            $('#displayTable').on('click', '.contentButton', function (event) {
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
                 var server = $(event.currentTarget.parentElement.parentElement).find('th').text();
                 $.post("/web/admin/content", '{"address":"' + address + '"}', function (data) {
-                    //parse returned json to create table rows
+                    $('#contentTable').html('');
+                    $.each(data, function(key, value) {
+                        var row = $($.parseHTML(modalRowString));
+                        $(row).find('.modalRow').text(value.row);
+                        $(row).find('.modalCol').text(value.col);
+                        $(row).find('.modalContent').text(value.data);
+                        $('#contentTable').append(row);
+                    });
                 });
                 $('#contentModal').find('.modal-title').text("Tablet Content: Server " + server);
                 $('#contentModal').modal('show');
@@ -134,34 +166,7 @@
                                 <th scope="col" class="text-light">Server Content</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="row" class="align-middle">1</th>
-                                <td class="align-middle serverAddress">localhost:5000</td>
-                                <td class="align-middle serverType">Backend</td>
-                                <td class="align-middle serverStatus">On</td>
-                                <td class="align-middle"><button class="btn btn-danger toggleButton">Toggle</button></td>
-                                <td class="align-middle">64 kB</td>
-                                <td class="align-middle"><button class="btn btn-primary contentButton">Content</button></td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="align-middle">2</th>
-                                <td class="align-middle serverAddress">localhost:5001</td>
-                                <td class="align-middle serverType">Backend</td>
-                                <td class="align-middle serverStatus">Off</td>
-                                <td class="align-middle"><button class="btn btn-danger toggleButton">Toggle</button></td>
-                                <td class="align-middle">128 kB</td>
-                                <td><button class="btn btn-primary contentButton">Content</button></td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="align-middle">3</th>
-                                <td class="align-middle serverAddress">localhost:5002</td>
-                                <td class="align-middle serverType">Frontend</td>
-                                <td class="align-middle serverStatus">On</td>
-                                <td class="align-middle"><button class="btn btn-danger toggleButton">Toggle</button></td>
-                                <td class="align-middle"></td>
-                                <td class="align-middle"></td>
-                            </tr>
+                        <tbody id="displayTable">
                         </tbody>
                     </table>
                 </div>
@@ -189,22 +194,7 @@
                                     <th scope="col">Content Preview</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="align-middle">matthew_drive</td>
-                                    <td class="align-middle">/root</td>
-                                    <td class="align-middle serverStatus">abcdefg</td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle">matthew_drive</td>
-                                    <td class="align-middle">/root/Pictures/pic1</td>
-                                    <td class="align-middle serverStatus">data:img/png;base64,aGfsadopindg</td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle">matthew_drive</td>
-                                    <td class="align-middle">/root/Pictures/pic1</td>
-                                    <td class="align-middle serverStatus">data:img/png;base64,;lahsdgTweRA</td>
-                                </tr>
+                            <tbody id="contentTable">
                             </tbody>
                         </table>
                     </div>

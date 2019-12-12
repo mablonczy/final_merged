@@ -310,11 +310,11 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string address = j["address"];
         std::vector<ServerDataPoint> serverData = get_node_data(address);
         json ret;
-        for (auto data: serverData) {
+        for (auto dp: serverData) {
             json dataPoint;
-            dataPoint["row"] = data.row;
-            dataPoint["col"] = data.col;
-            dataPoint["data"] = data.partialData;
+            dataPoint["row"] = dp.row;
+            dataPoint["col"] = dp.col;
+            dataPoint["data"] = dp.partialData;
         }
         return sendOk(ret.dump());
     }
