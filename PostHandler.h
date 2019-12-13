@@ -40,6 +40,7 @@ public:
 
     static std::string sendOk(const std::string& basicString);
 
+    std::string sendFail();
 };
 
 

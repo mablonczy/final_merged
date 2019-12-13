@@ -93,7 +93,7 @@ std::string PostHandler::handleRequest(std::string& request) {
             }
             return sendOk(mailList.dump());
         } else {
-            //TODO: 500
+            return sendFail();
         }
     } else if (path == mailSendPath) {
         std::string data = findData(request);
@@ -118,7 +118,7 @@ std::string PostHandler::handleRequest(std::string& request) {
             p["message"] = "PASS";
             return sendOk(p.dump());
         } else {
-            //TODO: 500
+            return sendFail();
         }
     } else if (path == mailDeletePath) {
         std::string data = findData(request);
@@ -135,7 +135,7 @@ std::string PostHandler::handleRequest(std::string& request) {
             p["message"] = "PASS";
             return sendOk(p.dump());
         } else {
-            //TODO: 500
+            return sendFail();
         }
     } else if (path == drivePath) {
         std::string data = findData(request);
@@ -147,7 +147,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::map<std::string, std::vector<std::string>> current_contents;
         std::string status = driveClient.display(reqPath, current_contents);
         if (status == BACKEND_DEAD) {
-            //TODO: return 500
+            return sendFail();
         }
         json ret;
         ret["files"] = current_contents[TYPE_FILE];
@@ -164,7 +164,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         driveClient.initialize(user);
         std::string status = driveClient.remove(currentDir, deletePath, type == "file" ? TYPE_FILE : TYPE_DIRECTORY);
         if (status == BACKEND_DEAD) {
-            //TODO: return 500;
+            return sendFail();
         }
         json p;
         p["message"] = "PASS";
@@ -180,15 +180,16 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
         driveClient.initialize(user);
         std::string status = driveClient.move(currentDir, currentName, newPath, type == "file" ? TYPE_FILE : TYPE_DIRECTORY);
-        if (status == BACKEND_DEAD) {
-            //TODO: return 500;
-        } else if (status == DUPLICATE_NAME) {
-            //TODO: name already exists
-        } else if (status == DIRECTORY_NOT_EXIST) {
-            //TODO: invalid dir
-        }
         json p;
-        p["message"] = "PASS";
+        if (status == BACKEND_DEAD) {
+            return sendFail();
+        } else if (status == DUPLICATE_NAME) {
+            p["message"] = "DUP";
+        } else if (status == DIRECTORY_NOT_EXIST) {
+            p["message"] = "DNE";
+        } else {
+            p["message"] = "PASS";
+        }
         return sendOk(p.dump());
     } else if (path == driveRenamePath) {
         std::string data = findData(request);
@@ -201,15 +202,16 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
         driveClient.initialize(user);
         std::string status = driveClient.rename(currentDir, currentName, newName, type == "file" ? TYPE_FILE : TYPE_DIRECTORY);
-        if (status == BACKEND_DEAD) {
-            //TODO: return 500;
-        } else if (status == DUPLICATE_NAME) {
-            //TODO: name already exists
-        } else if (status == FORBIDDEN_CHARS) {
-            //TODO:
-        }
         json p;
-        p["message"] = "PASS";
+        if (status == BACKEND_DEAD) {
+            return sendFail();
+        } else if (status == DUPLICATE_NAME) {
+            p["message"] = "DUP";
+        } else if (status == FORBIDDEN_CHARS) {
+            p["message"] = "FC";
+        } else {
+            p["message"] = "PASS";
+        }
         return sendOk(p.dump());
     } else if (path == driveNewFolderPath) {
         std::string data = findData(request);
@@ -220,15 +222,16 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
         driveClient.initialize(user);
         std::string status = driveClient.make_dir(currentDir, newName);
-        if (status == BACKEND_DEAD) {
-            //TODO: return 500;
-        } else if (status == DUPLICATE_NAME) {
-            //TODO: name already exists
-        } else if (status == FORBIDDEN_CHARS) {
-            //TODO:
-        }
         json p;
-        p["message"] = "PASS";
+        if (status == BACKEND_DEAD) {
+            return sendFail();
+        } else if (status == DUPLICATE_NAME) {
+            p["message"] = "DUP";
+        } else if (status == FORBIDDEN_CHARS) {
+            p["message"] = "FC";
+        } else {
+            p["message"] = "PASS";
+        }
         return sendOk(p.dump());
     } else if (path == driveUploadPath) {
         std::string data = findData(request);
@@ -240,15 +243,16 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
         driveClient.initialize(user);
         std::string status = driveClient.upload(currentDir, fileName, content);
-        if (status == BACKEND_DEAD) {
-            //TODO: return 500;
-        } else if (status == DUPLICATE_NAME) {
-            //TODO: name already exists
-        } else if (status == FORBIDDEN_CHARS) {
-            //TODO:
-        }
         json p;
-        p["message"] = "PASS";
+        if (status == BACKEND_DEAD) {
+            return sendFail();
+        } else if (status == DUPLICATE_NAME) {
+            p["message"] = "DUP";
+        } else if (status == FORBIDDEN_CHARS) {
+            p["message"] = "FC";
+        } else {
+            p["message"] = "PASS";
+        }
         return sendOk(p.dump());
     } else if (path == driveDownloadPath) {
         std::string data = findData(request);
@@ -261,7 +265,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string content;
         std::string status = driveClient.download(currentDir, fileName, content);
         if (status == BACKEND_DEAD) {
-            //TODO: return 500;
+            return sendFail();
         }
         json ret;
         ret["file"] = content;
@@ -365,5 +369,9 @@ std::vector<std::string> PostHandler::parseRecipients(std::string recipients) {
 
 std::string PostHandler::sendOk(const std::string& data) {
     return "HTTP/1.1 200 Okay\r\nContent-Type: application/json\r\nContent-length: " + std::to_string(data.length()) + "\r\n\r\n" + data + "\r\n";
+}
+
+std::string PostHandler::sendFail() {
+    return "HTTP/1.1 503 Service Unavailable\r\n";
 }
 

@@ -29,5 +29,9 @@ std::string HTMLtoString::readHTML(const std::string& path) {
 }
 
 std::string HTMLtoString::badRequest() {
-    return "";
+    std::string htmlPage = readHTML("resources/dne.html");
+    std::string cookie;
+    std::string response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
+    response.append(htmlPage);
+    return response;
 }

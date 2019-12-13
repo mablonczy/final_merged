@@ -51,6 +51,7 @@
             $('#new-path').tooltip('disable');
             $('#new-name').tooltip('disable');
             $('#folder-name').tooltip('disable');
+            $('#upload-file').tooltip('disable');
 
             var resetString = '<div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div><div class="col-2  bg-dark"></div>';
             var rowString = '<div class="row bg-light d-flex justify-content-center text-center"><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div><div class="col-2 bg-dark"></div></div>';
@@ -122,6 +123,12 @@
                         $('#folderModal').modal('hide')
                     } else {
                         $('#folder-name').tooltip('enable');
+                        if (data.message  === "DUP") {
+                            $('#folder-name').prop('title', "This name already exists. Try again.");
+                        }
+                        if (data.message === "FC") {
+                            $('#folder-name').prop('title', "This name contains forbidden characters. Try again.");
+                        }
                         $('#folder-name').tooltip('show');
                         $('#folder-name').tooltip('disable');
                     }
@@ -138,10 +145,22 @@
                    // content = content.substring(content.indexOf(',') + 1);
                     console.log(content);
                     $.post("/web/drive/upload", '{"current": "'+ $('.breadcrumb-item.active').data('path') + '", "name": "' + fileName +'", "content": "' + content + '"}', function (data) {
-                        console.log("Successful upload.");
-                        checkEmpty();
-                        insertGraphic('file', fileName);
-                        $('#uploadModal').modal('hide')
+                        if (data.message  === "PASS") {
+                            console.log("Successful upload.");
+                            checkEmpty();
+                            insertGraphic('file', fileName);
+                            $('#uploadModal').modal('hide')
+                        } else {
+                            $('#upload-file').tooltip('enable');
+                            if (data.message  === "DUP") {
+                                $('#upload-file').prop('title', "A file with this name already exists. Try again.");
+                            }
+                            if (data.message === "FC") {
+                                $('#upload-file').prop('title', "This name contains forbidden characters. Try again.");
+                            }
+                            $('#upload-file').tooltip('show');
+                            $('#upload-file').tooltip('disable');
+                        }
                     });
                 };
                 fr.readAsDataURL(file);
@@ -191,6 +210,12 @@
                         $('#renameModal').modal('hide')
                     } else {
                         $('#new-name').tooltip('enable');
+                        if (data.message  === "DUP") {
+                            $('#new-name').prop('title', "This name already exists. Try again.");
+                        }
+                        if (data.message === "FC") {
+                            $('#new-name').prop('title', "This name contains forbidden characters. Try again.");
+                        }
                         $('#new-name').tooltip('show');
                         $('#new-name').tooltip('disable');
                     }
@@ -214,6 +239,12 @@
                         $('#moveModal').modal('hide');
                     } else {
                         $('#new-path').tooltip('enable');
+                        if (data.message  === "DNE") {
+                            $('#new-path').prop('title', "Path invalid. Try again.");
+                        }
+                        if (data.message === "DUP") {
+                            $('#new-path').prop('title', "This name already exists. Try again.");
+                        }
                         $('#new-path').tooltip('show');
                         $('#new-path').tooltip('disable');
                     }
@@ -383,7 +414,8 @@
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="inputGroupFile01"
                                     aria-describedby="inputGroupFileAddon01">
-                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                <label class="custom-file-label" for="inputGroupFile01" id="upload-file" data-toggle="tooltip"
+                                       data-placement="bottom" title="Path invalid. Try again.">Choose file</label>
                             </div>
                         </div>
                     </div>
