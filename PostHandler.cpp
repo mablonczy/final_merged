@@ -142,18 +142,16 @@ std::string PostHandler::handleRequest(std::string& request) {
         data = data.substr(0, data.find_last_of('}') + 1);
         json j = json::parse(data);
         std::string reqPath = j["current"];
-//        std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
-//        driveClient.initialize(user);
-//        std::map<std::string, std::vector<std::string>> current_contents;
-//        std::string status = driveClient.display(reqPath, current_contents);
-//        if (status == BACKEND_DEAD) {
-//            return sendFail();
-//        }
+        std::string user = get_usr_from_cookie(Server::bigTableClient, cookie);
+        driveClient.initialize(user);
+        std::map<std::string, std::vector<std::string>> current_contents;
+        std::string status = driveClient.display(reqPath, current_contents);
+        if (status == BACKEND_DEAD) {
+            return sendFail();
+        }
         json ret;
-        ret["files"] = "";
-        ret["folders"] = "";
-//        ret["files"] = current_contents[TYPE_FILE];
-//        ret["folders"] = current_contents[TYPE_DIRECTORY];
+        ret["files"] = current_contents[TYPE_FILE];
+        ret["folders"] = current_contents[TYPE_DIRECTORY];
         return sendOk(ret.dump());
     } else if (path == driveDeletePath) {
         std::string data = findData(request);

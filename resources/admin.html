@@ -55,8 +55,9 @@
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/logout", '{}');
-                window.location.replace("/web");
+                $.post("/web/logout", '{}', function (event) {
+                    window.location.replace("/web");
+                });
             });
             var rowString = '<tr>\n' +
                 '                                <th scope="row" class="align-middle serverId">1</th>\n' +

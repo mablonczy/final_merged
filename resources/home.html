@@ -49,8 +49,9 @@
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/logout", '{}');
-                window.location.replace("/web");
+                $.post("/web/logout", '{}', function (event) {
+                    window.location.replace("/web");
+                });
             });
         })
     </script>
@@ -71,7 +72,7 @@
                 <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
                 <a class="nav-item nav-link" href="/web/mail">Email</a>
                 <a class="nav-item nav-link" href="/web/drive">Drive</a>
-                <a class="nav-item nav-link" href="#">Admin Console</a>
+                <a class="nav-item nav-link" href="/web/admin">Admin Console</a>
             </div>
             <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"
                 data-target="#passwordModal"> Change
