@@ -49,7 +49,7 @@
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/logout");
+                $.post("/web/logout", '{}');
                 window.location.replace("/web");
             });
         })

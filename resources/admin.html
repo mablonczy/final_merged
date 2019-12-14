@@ -55,7 +55,7 @@
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/logout");
+                $.post("/web/logout", '{}');
                 window.location.replace("/web");
             });
             var rowString = '<tr>\n' +
@@ -67,7 +67,7 @@
                 '                                <td class="align-middle serverLoad">64 kB</td>\n' +
                 '                                <td class="align-middle serverContent"><button class="btn btn-primary contentButton">Content</button></td>\n' +
                 '                            </tr>';
-            $.post("/web/admin", function (data) {
+            $.post("/web/admin", '{}', function (data) {
                 $.each(data, function(key, value) {
                     var row = $($.parseHTML(rowString));
                     $(row).find('.serverId').text(value.id);
