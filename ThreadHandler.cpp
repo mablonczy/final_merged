@@ -9,17 +9,20 @@
 #include "PostHandler.h"
 #include "Writer.h"
 
+bool fuck = false;
+
 void* ThreadHandler::worker(void *args) {
     pthread_detach(pthread_self());
     int fd = *(int*) args;
     //10 MB buffer
-    char* buf = new char[10000000];
-    int rcvd = do_read(fd, buf, 10000000);
+    char* buf = new char[50000000];
+    int rcvd = do_read(fd, buf, 50000000);
     std::string request(buf, rcvd);
     delete[] buf;
     std::cerr << request << std::endl;
     std::string request_type = request.substr(0, request.find_first_of(' '));
     if (request_type == "GET") {
+        fuck = true;
         //get response string
         //send response string to fd
         GetHandler getHandler;
@@ -41,12 +44,24 @@ void* ThreadHandler::worker(void *args) {
 
 int ThreadHandler::do_read(int fd, char* buf, int len) {
     int rcvd = 0;
+    bool post = false;
+    bool firstRead = true;
     //will loop until there is nothing left to read
     while (true) {
         int n = read(fd, &buf[rcvd], len - rcvd);
         rcvd += n;
-        if (n <= 0 || find_end(buf, len) != -1) {
-            return rcvd;
+        if (firstRead) {
+            std::string first(buf, rcvd);
+            if (first.substr(0, 3) == "GET" || first.substr(first.size() - 10).find('}') != std::string::npos) {
+                return rcvd;
+            }
+            firstRead = false;
+        } else {
+            std::string buffer(buf, rcvd);
+            std::string lastFew = buffer.substr(buffer.size() - 10);
+            if (lastFew.find('}') != std::string::npos) {
+                return rcvd;
+            }
         }
     }
 }
