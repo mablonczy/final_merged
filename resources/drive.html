@@ -201,6 +201,7 @@
                     var a = document.createElement("a");
                     a.href = data.file;
                     a.download = fileName;
+                    console.log(a);
                     document.body.appendChild(a);
                     a.click(); //Downloaded file
                     document.body.removeChild(a);
