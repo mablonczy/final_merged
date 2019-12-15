@@ -292,8 +292,9 @@ std::string PostHandler::handleRequest(std::string& request) {
             json serv;
             serv["id"] = frontendId++;
             serv["address"] = "localhost:" + std::to_string(server);
-            serv["status"] = (std::find(liveFrontends.begin(), liveFrontends.end(), std::to_string(server)) != liveFrontends.end()) ? "On" : "Off";
+            serv["status"] = (std::find(liveFrontends.begin(), liveFrontends.end(), std::to_string(server)) != liveFrontends.end() || server == Server::portNum) ? "On" : "Off";
             serv["type"] = "Frontend";
+            serv["load"] = "";
             ret.push_back(serv);
         }
         return sendOk(ret.dump());
@@ -305,18 +306,12 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string address = j["address"];
         std::string type = j["type"];
         adminClient.initialize();
+        //frontend nodes are handled by LB, not server
         if (type == "Backend") {
             if (status == "on") {
                 adminClient.turn_off_node(address);
             } else {
                 adminClient.turn_on_node(address);
-            }
-        } else {
-            //TODO: toggle frontend
-            if (status == "on") {
-                //send to other server to turn off
-            } else {
-                //send to other server to turn on
             }
         }
         json p;

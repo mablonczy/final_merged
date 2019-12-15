@@ -14,6 +14,7 @@ public:
     static std::vector<int> frontendServers;
     static BigTableClient bigTableClient;
     static bool run;
+    static int portNum;
     void startServer(char* portNumber);
     Server() {
         frontendServers = {5051, 5052, 5053};

@@ -13,9 +13,11 @@
 BigTableClient Server::bigTableClient;
 bool Server::run = true;
 std::vector<int> Server::frontendServers;
+int Server::portNum;
 
 void Server::startServer(char* portNumber) {
     int port_num = atoi(portNumber);
+    portNum = port_num;
     //open socket
     int sockfd = socket(PF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -33,7 +35,7 @@ void Server::startServer(char* portNumber) {
     listen(sockfd, 100);
     pthread_t thread;
     bigTableClient.initialize("config.txt", 1, true);
-    while (run) {
+    while (true) {
         struct sockaddr_in clientaddr;
         socklen_t clientaddrlen = sizeof(clientaddr);
         //accept connection
@@ -47,6 +49,7 @@ void Server::startServer(char* portNumber) {
 std::vector<std::string> Server::pingFrontendServers() {
     std::vector<std::string> liveServers;
     for (auto server: Server::frontendServers) {
+        if (server == Server::portNum) continue;
         int sockfd = socket(PF_INET, SOCK_STREAM, 0);
         if (sockfd < 0) {
             fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));

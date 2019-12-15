@@ -112,24 +112,37 @@
                 var status = $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text();
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
                 var type = $(event.currentTarget.parentElement.parentElement).find('.serverType').text();
-                if (status === "On") {
-                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
-                        $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
-                    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-                        if (XMLHttpRequest.readyState == 0) {
-                            alert("Server unavailable. Redirecting.");
-                            redirectServerDown();
-                        }
-                    });
+                console.log(status)
+                console.log(type)
+                if (type === "Backend") {
+                    if (status === "On") {
+                        $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
+                            $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
+                        }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                            if (XMLHttpRequest.readyState == 0) {
+                                alert("Server unavailable. Redirecting.");
+                                redirectServerDown();
+                            }
+                        });
+                    } else {
+                        $.post("/web/admin/toggle", '{"status":"off", "address":"' + address + '", "type":"' + type + '"}', function (data) {
+                            $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
+                        }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                            if (XMLHttpRequest.readyState == 0) {
+                                alert("Server unavailable. Redirecting.");
+                                redirectServerDown();
+                            }
+                        });
+                    }
                 } else {
-                    $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
-                        $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
-                    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-                        if (XMLHttpRequest.readyState == 0) {
-                            alert("Server unavailable. Redirecting.");
-                            redirectServerDown();
+                    console.log("posting");
+                    $.post("http://localhost:5555/web/admin/toggle", '{"address":"' + address + '"}', function (data) {
+                        if (status === "On") {
+                            $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
+                        } else {
+                            $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
                         }
-                    });
+                    })
                 }
             });
             var modalRowString = '<tr>\n' +

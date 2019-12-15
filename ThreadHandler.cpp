@@ -8,6 +8,7 @@
 #include "GetHandler.h"
 #include "PostHandler.h"
 #include "Writer.h"
+#include "Server.h"
 
 void* ThreadHandler::worker(void *args) {
     pthread_detach(pthread_self());
@@ -19,21 +20,23 @@ void* ThreadHandler::worker(void *args) {
     delete[] buf;
     std::cerr << request.substr(0, request.length() > 1000 ? 1000 : request.length()) << std::endl;
     std::string request_type = request.substr(0, request.find_first_of(' '));
-    if (request_type == "GET") {
+    if (request_type == "GET" && Server::run) {
         //get response string
         //send response string to fd
         GetHandler getHandler;
         std::string response = getHandler.handleRequest(request);
         Writer::do_write(fd, response.c_str(), response.length());
-    } else if (request_type == "POST") {
+    } else if (request_type == "POST" && Server::run) {
         PostHandler postHandler;
         std::string response = postHandler.handleRequest(request);
         Writer::do_write(fd, response.c_str(), response.length());
-    } else if (request_type == "ALIVE?") {
+    } else if (request_type == "ALIVE?" && Server::run) {
         std::string response = "YES";
         Writer::do_write(fd, response.c_str(), response.length());
-    } else {
-        //invalid - request not implemented
+    } else if (request_type == "SWITCH"){
+        Server::run = !Server::run;
+        std::string response = "YES";
+        Writer::do_write(fd, response.c_str(), response.length());
     }
     close(fd);
     std::cerr << "[" << fd << "] Connection closed" << std::endl;
@@ -47,10 +50,11 @@ int ThreadHandler::do_read(int fd, char* buf, int len) {
     //will loop until there is nothing left to read
     while (true) {
         int n = read(fd, &buf[rcvd], len - rcvd);
+        if (n < 0) return -1;
         rcvd += n;
         if (firstRead) {
             std::string first(buf, rcvd);
-            if (n <= 0 || first.substr(0, 3) == "GET" || first == "ALIVE?" || first.substr(first.size() - 10).find('}') != std::string::npos) {
+            if (n <= 0 || first.substr(0, 3) == "GET" || first == "ALIVE?" || first == "SWITCH" || first == "YES" || first.substr(first.size() - 10).find('}') != std::string::npos) {
                 return rcvd;
             }
             firstRead = false;
