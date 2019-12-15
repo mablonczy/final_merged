@@ -1,5 +1,3 @@
-/* Leonardo Murri */
-
 #ifndef BIGTABLE_CLIENT_H_
 #define BIGTABLE_CLIENT_H_
 
@@ -130,6 +128,39 @@ public:
  		else return FAILURE;
 	}
 
+	int cput(std::string& row, std::string& column, std::string& value1, std::string& value2) {
+		// /* Define CPUT message */
+		// Payload payload;
+		// payload.add(TYPE, CPUT);
+		// payload.add(ROW, row);
+		// payload.add(COLUMN, column);   
+		// payload.add(SENDER, CLIENT); 
+		// payload.add(GOLD, value1); 
+		// payload.set_data(value2);
+
+		/* Define PUT message */
+		Payload payload;
+		payload.add(TYPE, PUT);
+		payload.add(ROW, row);
+		payload.add(COLUMN, column);   
+		payload.add(SENDER, CLIENT); 
+		payload.set_data(value2);
+
+		/* Connect to primary node */
+		int cluster_id = row_to_cluster_id(row);
+
+		/* Connect to first server i.e. primary */
+		int socket_fd = connect_to_primary_server(cluster_id);
+
+ 		Payload response = sender_server_request(socket_fd, payload);
+
+ 		if (PRINT_LOGS) printf("[%d] Closing connection to server.\n", socket_fd);
+ 		close(socket_fd);
+
+ 		if (response.get(STATUS) == STATUS_OK) return SUCCESS;
+ 		else return FAILURE;
+	}
+
 	/* Returns first X items in tablet (row, col, truncated value) */
 	bool get_head(Node node, Payload& response) {
 		int socket_fd = connect_to_server(node);
@@ -215,5 +246,4 @@ private:
 	}
 
 };
-
 #endif

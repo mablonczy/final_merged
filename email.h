@@ -5,7 +5,7 @@
 #ifndef FINAL_EMAIL_H
 #define FINAL_EMAIL_H
 
-class email {
+class Email {
 public:
     std::string sender;
     std::string timestamp;
@@ -13,13 +13,13 @@ public:
     std::string content;
     std::string subject;
 
-    email()= default;
+    Email()= default;
 
-    email(const std::string &sender, const std::string &timestamp, const std::vector<std::string> &recepients,
+    Email(const std::string &sender, const std::string &timestamp, const std::vector<std::string> &recepients,
           const std::string &content, const std::string &subject) : sender(sender), timestamp(timestamp),
                                                                     recepients(recepients), content(content),
                                                                     subject(subject) {}
-
+    Email& operator=(const Email& rhs) {};
     std::string hashValueString;
     //std::string username;
 };

@@ -1,21 +1,22 @@
-cmake_minimum_required(VERSION 3.15)
-project(final)
+cmake_minimum_required(VERSION 3.14)
+project(final_merged)
 
 set(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_CXX_FLAGS -pthread)
 
 include_directories(.)
-include_directories(resources)
 
-add_executable(final
+add_executable(final_merged
         resources/admin.html
+        resources/dne.html
         resources/drive.html
         resources/home.html
         resources/login.html
         resources/mail.html
+        resources/serversdown.html
         AdminClient.h
         BigTableClient.h
         Checkpoint.h
+        CMakeLists.txt
         communication.h
         config.txt
         DriveClient.h

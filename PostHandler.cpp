@@ -10,7 +10,7 @@
 #include "Server.h"
 #include "AdminClient.h"
 #include "userHandler.h"
-#include "email.h"
+#include "Email.h"
 #include "HTMLtoString.h"
 
 using json = nlohmann::json;
@@ -63,7 +63,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         del_usr_cookie(Server::bigTableClient, cookie);
         json p;
         p["message"] = "PASS";
-        return p.dump();
+        return sendOk(p.dump());
     } else if (path == passwordPath) {
         std::string data = findData(request);
         data = data.substr(0, data.find_last_of('}') + 1);
@@ -81,7 +81,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         }
     } else if (path == mailPath) {
         emailClient.initialize();
-        std::vector<email> mails;
+        std::vector<Email> mails;
         std::string status = emailClient.listEmails(get_usr_from_cookie(Server::bigTableClient, cookie), mails);
         if (status == "SUCCESS") {
             json mailList;
@@ -91,6 +91,7 @@ std::string PostHandler::handleRequest(std::string& request) {
                 m["subject"] = mail.subject;
                 m["time"] = mail.timestamp;
                 m["content"] = mail.content;
+                m["hashValueString"] = mail.hashValueString;
                 mailList.push_back(m);
             }
             return sendOk(mailList.dump());
@@ -113,7 +114,7 @@ std::string PostHandler::handleRequest(std::string& request) {
         timeinfo = localtime (&rawtime);
         strftime (buffer,80,"%x %X",timeinfo);
         std::string time(buffer);
-        email e(sender, time, recipients, content, subject);
+        Email e(sender, time, recipients, content, subject);
         std::string status = emailClient.putEmail(e);
         if (status == "SUCCESS") {
             json p;
@@ -130,7 +131,9 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string sender = j["sender"];
         std::string subject = j["subject"];
         std::string time = j["time"];
-        email m(sender, time, {user}, "", subject);
+        std::string hashValueString = j["hash"];
+        Email m(sender, time, {user}, "", subject);
+        m.hashValueString = hashValueString;
         std::string status = emailClient.deleteEmail(m);
         if (status == "SUCCESS") {
             json p;
@@ -273,7 +276,6 @@ std::string PostHandler::handleRequest(std::string& request) {
         ret["file"] = content;
         return sendOk(ret.dump());
     } else if (path == adminPath) {
-        adminClient.initialize();
         std::vector<ServerMetadata> server_info = adminClient.get_servers_info();
         json ret;
         for (auto server: server_info) {
@@ -305,7 +307,6 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string status = j["status"];
         std::string id = j["id"];
         std::string type = j["type"];
-        adminClient.initialize();
         //frontend nodes are handled by LB, not server
         if (type == "Backend") {
             if (status == "on") {
@@ -322,7 +323,6 @@ std::string PostHandler::handleRequest(std::string& request) {
         data = data.substr(0, data.find_last_of('}') + 1);
         json j = json::parse(data);
         std::string id = j["id"];
-        adminClient.initialize();
         std::vector<ServerDataPoint> serverData = adminClient.get_server_content(stoi(id));
         json ret;
         for (auto dp: serverData) {

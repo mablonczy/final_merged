@@ -43,7 +43,7 @@
                     document.open();
                     document.write(XMLHttpRequest.responseText);
                     document.close();
-                });;
+                });
             }
             $('#passwordForm').on('submit', function (event) {
                 event.preventDefault();
@@ -67,7 +67,7 @@
                     }
                 });
             });
-            var mailString = '<button type="button" class="btn btn-primary btn-block mt-2 mb-2" data-toggle="modal" data-target="#recievedModal" data-subject="" data-time="" data-sender="" data-content=""></button>';
+            var mailString = '<button type="button" class="btn btn-primary btn-block mt-2 mb-2" data-toggle="modal" data-target="#recievedModal" data-hash="" data-subject="" data-time="" data-sender="" data-content=""></button>';
             function getEmails() {
                 $.post("/web/mail", '{}', function (data) {
                     $.each(data, function(key, value) {
@@ -76,6 +76,7 @@
                         $(newMail).data('subject', value.subject);
                         $(newMail).data('time', value.time);
                         $(newMail).data('content', value.content);
+                        $(newMail).data('hash', value.hashValueString);
                         var buttonString = "From: " + value.sender + " Subject: " + value.subject + " Received on: " + value.time;
                         $(newMail).html(buttonString);
                         $('#mailContainer').append(newMail);
@@ -98,6 +99,7 @@
                 var sender = button.data('sender');
                 var time = button.data('time');
                 var subject = button.data('subject');
+                var hash = button.data('hash');
                 // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
                 var modal = $(this);
                 modal.find('.modal-title').text("Subject: " + subject);
@@ -107,6 +109,7 @@
                 modal.find('#deleteSender').attr('value', sender);
                 modal.find('#deleteSubject').attr('value', subject);
                 modal.find('#deleteTime').attr('value', time);
+                modal.find('#deleteHash').attr('value', hash);
             });
             $('[data-toggle="tooltip"]').tooltip();
             $('#sendForm').on('submit', function (event) {
@@ -239,6 +242,7 @@
                         <input type="hidden" name="sender" id="deleteSender">
                         <input type="hidden" name="subject" id="deleteSubject">
                         <input type="hidden" name="time" id="deleteTime">
+                        <input type="hidden" name="hash" id="deleteHash">
                         <button type="submit" class="btn btn-danger" data-toggle="tooltip"
                                 data-placement="top" title="This action cannot be undone." id="deleteButton">Delete</button>
                     </form>

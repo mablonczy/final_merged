@@ -9,11 +9,11 @@
 
 class HTMLtoString {
     std::map<std::string, std::string> pages = {
-            {"/web","/home/cis505/final/resources/login.html"},
-            {"/web/home","/home/cis505/final/resources/home.html"},
-            {"/web/mail","/home/cis505/final/resources/mail.html"},
-            {"/web/drive","/home/cis505/final/resources/drive.html"},
-            {"/web/admin", "/home/cis505/final/resources/admin.html"}
+            {"/web","/Users/murri/Desktop/FrontEnd/final_merged/resources/login.html"},
+            {"/web/home","/Users/murri/Desktop/FrontEnd/final_merged/resources/home.html"},
+            {"/web/mail","/Users/murri/Desktop/FrontEnd/final_merged/resources/mail.html"},
+            {"/web/drive","/Users/murri/Desktop/FrontEnd/final_merged/resources/drive.html"},
+            {"/web/admin", "/Users/murri/Desktop/FrontEnd/final_merged/resources/admin.html"}
     };
     static std::string readHTML(const std::string& path);
 public:

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="final_merged"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="final_merged">
+				<Option output="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/final_merged" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/murri/Desktop/FrontEnd/final_merged/."/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 final_merged"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="final_merged/fast">
+				<Option output="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/final_merged" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/murri/Desktop/FrontEnd/final_merged/."/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 final_merged/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/murri/Desktop/FrontEnd/final_merged/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/AdminClient.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/BigTableClient.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/CMakeLists.txt">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Checkpoint.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/DriveClient.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/EmailClient.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/GetHandler.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/GetHandler.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/HTMLtoString.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/HTMLtoString.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Payload.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/PostHandler.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/PostHandler.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Server.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Server.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/ThreadHandler.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/ThreadHandler.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Writer.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/Writer.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/communication.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/config.txt">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/email.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/json.hpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/main.cpp">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/admin.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/dne.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/drive.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/home.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/login.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/mail.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/resources/serversdown.html">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/userHandler.h">
+			<Option target="final_merged"/>
+		</Unit>
+		<Unit filename="/Users/murri/Desktop/FrontEnd/final_merged/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
