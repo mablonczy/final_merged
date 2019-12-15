@@ -8,9 +8,11 @@
 #include <zconf.h>
 #include "Server.h"
 #include "ThreadHandler.h"
+#include "Writer.h"
 
 BigTableClient Server::bigTableClient;
 bool Server::run = true;
+std::vector<int> Server::frontendServers;
 
 void Server::startServer(char* portNumber) {
     int port_num = atoi(portNumber);
@@ -40,4 +42,28 @@ void Server::startServer(char* portNumber) {
         pthread_create(&thread, NULL, ThreadHandler::worker, &comm_fd);
     }
     close(sockfd);
+}
+
+std::vector<std::string> Server::pingFrontendServers() {
+    std::vector<std::string> liveServers;
+    for (auto server: Server::frontendServers) {
+        int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) {
+            fprintf(stderr, "Cannot open socket (%s)\n", strerror(errno));
+            exit(1);
+        }
+        struct sockaddr_in servaddr;
+        bzero(&servaddr, sizeof(servaddr));
+        servaddr.sin_family = AF_INET;
+        servaddr.sin_port = htons(server);
+        inet_pton(AF_INET, "localhost", &(servaddr.sin_addr));
+        connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
+        std::string ping = "ALIVE?";
+        Writer::do_write(sockfd, ping.c_str(), ping.length());
+        char* buf = new char[500];
+        int rcvd = ThreadHandler::do_read(sockfd, buf, 500);
+        if (rcvd > 0) liveServers.push_back(std::to_string(server));
+        close(sockfd);
+    }
+    return liveServers;
 }

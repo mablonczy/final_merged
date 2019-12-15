@@ -48,15 +48,35 @@
                 }
                 return returnArray;
             }
+            function redirectServerDown() {
+                $.post("http://localhost:5555/web/admin", function (data) {
+                    window.location.href = "http://localhost:" + data.location + "/web/admin";
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    document.open();
+                    document.write(XMLHttpRequest.responseText);
+                    document.close();
+                });
+            }
             $('#passwordForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())))
+                    .fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
+                });
                 $('#passwordModal').modal('hide');
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
                 $.post("/web/logout", '{}', function (event) {
                     window.location.replace("/web");
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             var rowString = '<tr>\n' +
@@ -82,6 +102,11 @@
                     }
                     $('#displayTable').append(row);
                 });
+            }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.readyState == 0) {
+                    alert("Server unavailable. Redirecting.");
+                    redirectServerDown();
+                }
             });
             $('#displayTable').on('click', '.toggleButton', function (event) {
                 var status = $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text();
@@ -90,10 +115,20 @@
                 if (status === "On") {
                     $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
                         $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
+                    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
                     });
                 } else {
                     $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
                         $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
+                    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
                     });
                 }
             });
@@ -105,7 +140,7 @@
             $('#displayTable').on('click', '.contentButton', function (event) {
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
                 var server = $(event.currentTarget.parentElement.parentElement).find('th').text();
-                $.post("/web/admin/content", '{"address":"' + address + '"}', function (data) {
+                $.post("/web/admin/content", '{"id":"' + server + '"}', function (data) {
                     $('#contentTable').html('');
                     $.each(data, function(key, value) {
                         var row = $($.parseHTML(modalRowString));
@@ -114,9 +149,14 @@
                         $(row).find('.modalContent').text(value.data);
                         $('#contentTable').append(row);
                     });
+                    $('#contentModal').find('.modal-title').text("Tablet Content: Server " + server);
+                    $('#contentModal').modal('show');
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
-                $('#contentModal').find('.modal-title').text("Tablet Content: Server " + server);
-                $('#contentModal').modal('show');
             });
         })
     </script>
@@ -135,9 +175,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav mr-auto">
-                <a class="nav-item nav-link" href="/web/home">Home</a>
-                <a class="nav-item nav-link" href="/web/mail">Email</a>
-                <a class="nav-item nav-link" href="/web/drive">Drive</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/home">Home</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/mail">Email</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/drive">Drive</a>
                 <a class="nav-item nav-link active" href="#">Admin Console<span class="sr-only">(current)</span></a>
             </div>
             <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"

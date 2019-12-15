@@ -13,7 +13,7 @@ add_executable(final
         resources/home.html
         resources/login.html
         resources/mail.html
-        admin.h
+        AdminClient.h
         BigTableClient.h
         Checkpoint.h
         communication.h

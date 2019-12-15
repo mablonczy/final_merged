@@ -35,7 +35,7 @@
     </style>
     <script>
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
+            $('[data-toggle="tooltip"]').tooltip();
             $('#registerPassword').tooltip('disable');
             function objectifyForm(formArray) {//serialize data function
                 var returnArray = {};
@@ -46,8 +46,11 @@
             }
             function redirectServerDown() {
                 $.post("http://localhost:5555/web", function (data) {
-                    console.log(data);
                     window.location.href = "http://localhost:" + data.location + "/web";
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    document.open();
+                    document.write(XMLHttpRequest.responseText);
+                    document.close();
                 });
             }
             $('.toast').toast();
@@ -60,15 +63,9 @@
                         window.location.replace("/web/home")
                     }
                 }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
-                    if (XMLHttpRequest.readyState == 4) {
-                        // HTTP error (can be checked by XMLHttpRequest.status and XMLHttpRequest.statusText)
-                    }
-                    else if (XMLHttpRequest.readyState == 0) {
-                        console.log("Server unavailable.")
-                        redirectServerDown();
-                    }
-                    else {
-                        // something weird is happening
+                   if (XMLHttpRequest.readyState == 0) {
+                       alert("Server unavailable. Redirecting.");
+                       redirectServerDown();
                     }
                 });
             });
@@ -82,8 +79,13 @@
                     } else if (data.message === "PASS") {
                         $('#registerModal').modal('hide');
                     }
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
-            })
+            });
         });
     </script>
 </head>

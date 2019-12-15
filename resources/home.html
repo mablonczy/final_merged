@@ -43,15 +43,35 @@
                 }
                 return returnArray;
             }
+            function redirectServerDown() {
+                $.post("http://localhost:5555/web/home", function (data) {
+                    window.location.href = "http://localhost:" + data.location + "/web/home";
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    document.open();
+                    document.write(XMLHttpRequest.responseText);
+                    document.close();
+                });;
+            }
             $('#passwordForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())))
+                    .fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
+                });
                 $('#passwordModal').modal('hide');
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
                 $.post("/web/logout", '{}', function (event) {
                     window.location.replace("/web");
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
         })
@@ -71,9 +91,9 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav mr-auto">
                 <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
-                <a class="nav-item nav-link" href="/web/mail">Email</a>
-                <a class="nav-item nav-link" href="/web/drive">Drive</a>
-                <a class="nav-item nav-link" href="/web/admin">Admin Console</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/mail">Email</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/drive">Drive</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/admin">Admin Console</a>
             </div>
             <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"
                 data-target="#passwordModal"> Change

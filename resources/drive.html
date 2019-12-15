@@ -37,16 +37,35 @@
                 returnArray['current'] = $('.breadcrumb-item.active').data('path');
                 return returnArray;
             }
-
+            function redirectServerDown() {
+                $.post("http://localhost:5555/web/drive", function (data) {
+                    window.location.href = "http://localhost:" + data.location + "/web/drive";
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    document.open();
+                    document.write(XMLHttpRequest.responseText);
+                    document.close();
+                });
+            }
             $('#passwordForm').on('submit', function (event) {
                 event.preventDefault();
-                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())));
+                $.post("/web/password", JSON.stringify(objectifyForm($(this).serializeArray())))
+                    .fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
+                });
                 $('#passwordModal').modal('hide');
             });
             $('#logOutForm').on('submit', function (event) {
                 event.preventDefault();
                 $.post("/web/logout", '{}', function (event) {
                     window.location.replace("/web");
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             $('#new-path').tooltip('disable');
@@ -133,6 +152,11 @@
                         $('#folder-name').tooltip('show');
                         $('#folder-name').tooltip('disable');
                     }
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             $('#uploadForm').on('submit', function (event) {
@@ -162,6 +186,11 @@
                             $('#upload-file').tooltip('show');
                             $('#upload-file').tooltip('disable');
                         }
+                    }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.readyState == 0) {
+                            alert("Server unavailable. Redirecting.");
+                            redirectServerDown();
+                        }
                     });
                 };
                 fr.readAsDataURL(file);
@@ -175,6 +204,11 @@
                     document.body.appendChild(a);
                     a.click(); //Downloaded file
                     document.body.removeChild(a);
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             $('[data-toggle="tooltip"]').tooltip();
@@ -188,6 +222,11 @@
                 var text = $(event.currentTarget.parentElement.parentElement).find('figcaption').text();
                 $.post("/web/drive/delete", '{"current": "'+ $('.breadcrumb-item.active').data('path') + '", "type": "' + type + '", "name": "' + text +'"}', function (data) {
                     console.log(data);
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
                 $(event.currentTarget).tooltip('dispose');
                 $(event.currentTarget.parentElement.parentElement).remove();
@@ -220,6 +259,11 @@
                         $('#new-name').tooltip('show');
                         $('#new-name').tooltip('disable');
                     }
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             var toMove;
@@ -249,6 +293,11 @@
                         $('#new-path').tooltip('show');
                         $('#new-path').tooltip('disable');
                     }
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             });
             $('.custom-file-input').on('change', function () {
@@ -270,6 +319,11 @@
                         checkEmpty();
                         insertGraphic('file', value);
                     });
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 0) {
+                        alert("Server unavailable. Redirecting.");
+                        redirectServerDown();
+                    }
                 });
             }
             getPageData();
@@ -312,10 +366,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav mr-auto">
-                <a class="nav-item nav-link" href="/web/home">Home</a>
-                <a class="nav-item nav-link" href="/web/mail">Email</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/home">Home</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/mail">Email</a>
                 <a class="nav-item nav-link active" href="#">Drive<span class="sr-only">(current)</span></a>
-                <a class="nav-item nav-link" href="/web/admin">Admin Console</a>
+                <a class="nav-item nav-link" href="http://localhost:5555/web/admin">Admin Console</a>
             </div>
             <button type="button" class="btn btn-outline text-white-50" data-toggle="modal"
                 data-target="#passwordModal"> Change

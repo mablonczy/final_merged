@@ -1,10 +1,22 @@
-#ifndef FINAL_BIGTABLECLIENT_H
-#define FINAL_BIGTABLECLIENT_H
+/* Leonardo Murri */
 
-#include <map>
+#ifndef BIGTABLE_CLIENT_H_
+#define BIGTABLE_CLIENT_H_
+
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string>
+#include <iostream>
 #include <fstream>
-#include <sys/time.h>
+#include <bitset>
+#include <map>
 #include <vector>
+#include <sys/time.h>
+
 #include "communication.h"
 
 inline int SUCCESS =  1;
@@ -17,11 +29,11 @@ private:
 	bool PRINT_LOGS;
 	int  number_of_primaries;
 
-	// std::map<int, std::vector<Node> > cluster_id_to_nodes;
+	std::map<int, std::vector<Node> > cluster_id_to_nodes;
 
 public: 
-	std::map<int, std::vector<Node> > cluster_id_to_nodes;
-	
+	std::vector<Node> nodes;
+
 	void initialize(std::string config_file_path, int num_of_primaries, bool print_logs) {
 		PRINT_LOGS = print_logs;
 		number_of_primaries = num_of_primaries;
@@ -36,8 +48,8 @@ public:
 			node.port    = extract_port_number_from_address(address);
 			node.domain_port = node.domain + "_" + std::to_string(node.port);
 			node.address = get_address_from_domain_and_port(node.domain, node.port);
-
 			cluster_id_to_nodes[index++ % num_of_primaries].push_back(node);
+			nodes.push_back(node);
 		} 
 	}
 
@@ -56,33 +68,6 @@ public:
 		/* Connect to first server i.e. primary */
 		int socket_fd = connect_to_primary_server(cluster_id);
  		if (socket_fd == FAILURE) return FAILURE;
-
- 		Payload response = sender_server_request(socket_fd, payload);
-
- 		if (PRINT_LOGS) printf("[%d] Closing connection to server.\n", socket_fd);
- 		close(socket_fd);
-
- 		if (response.get(STATUS) == STATUS_OK) return SUCCESS;
- 		else return FAILURE;
-	}
-
-	int cput(std::string& row, std::string& column, std::string& value1, std::string& value2) {
-		/* Define CPUT message */
-		Payload payload;
-		payload.add(TYPE, CPUT);
-		payload.add(ROW, row);
-		payload.add(COLUMN, column);   
-		payload.add(SENDER, CLIENT); 
-		payload.add(GOLD, value1); 
-		payload.set_data(value2);
-		
-
-		/* Connect to primary node */
-		int cluster_id = row_to_cluster_id(row);
-
-		/* Connect to first server i.e. primary */
-		/* TODO: Check if first one is avaliable else go down the line */
-		int socket_fd = connect_to_server(cluster_id_to_nodes[cluster_id][0]);
 
  		Payload response = sender_server_request(socket_fd, payload);
 
@@ -144,6 +129,18 @@ public:
  	 	if (response.get(STATUS) == STATUS_OK) return SUCCESS;
  		else return FAILURE;
 	}
+
+	/* Returns first X items in tablet (row, col, truncated value) */
+	bool get_head(Node node, Payload& response) {
+		int socket_fd = connect_to_server(node);
+		if (socket_fd == FAILURE) return false;
+		Payload payload;
+		payload.add(TYPE, HEAD); 
+		payload.add(SENDER, CLIENT); 
+ 		response = sender_server_request(socket_fd, payload);
+ 		return true;
+	}
+
 
 private:
 

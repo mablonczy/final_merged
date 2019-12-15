@@ -29,7 +29,7 @@ std::string HTMLtoString::readHTML(const std::string& path) {
 }
 
 std::string HTMLtoString::badRequest() {
-    std::string htmlPage = readHTML("resources/dne.html");
+    std::string htmlPage = readHTML("/home/cis505/final/resources/dne.html");
     std::string cookie;
     std::string response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
     response.append(htmlPage);
@@ -37,7 +37,7 @@ std::string HTMLtoString::badRequest() {
 }
 
 std::string HTMLtoString::serversDown() {
-    std::string htmlPage = readHTML("resources/serversDown.html");
+    std::string htmlPage = readHTML("/home/cis505/final/resources/serversdown.html");
     std::string cookie;
     std::string response = "HTTP/1.1 503 Service Unavailable\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
     response.append(htmlPage);

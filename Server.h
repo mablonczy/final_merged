@@ -11,9 +11,14 @@
 class Server {
 
 public:
+    static std::vector<int> frontendServers;
     static BigTableClient bigTableClient;
     static bool run;
     void startServer(char* portNumber);
+    Server() {
+        frontendServers = {5051, 5052, 5053};
+    }
+    static std::vector<std::string> pingFrontendServers();
 };
 
 

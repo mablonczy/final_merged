@@ -11,6 +11,9 @@ inline std::string SENDER = "SENDER";
 inline std::string CLIENT = "CLIENT";
 inline std::string SERVER = "SERVER";
 
+inline std::string HEAD         = "HEAD";
+inline std::string TABLET_SIZE  = "TABLET_SIZE";
+
 inline std::string TYPE         = "TYPE";
 inline std::string PUT          = "PUT";
 inline std::string GET          = "GET";

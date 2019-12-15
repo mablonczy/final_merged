@@ -8,15 +8,16 @@
 #include "EmailClient.h"
 #include "PostHandler.h"
 #include "Server.h"
+#include "AdminClient.h"
 #include "userHandler.h"
 #include "email.h"
-#include "admin.h"
 #include "HTMLtoString.h"
 
 using json = nlohmann::json;
 
 DriveClient driveClient;
 EmailClient emailClient;
+AdminClient adminClient;
 
 std::string PostHandler::handleRequest(std::string& request) {
     //eliminate POST
@@ -272,7 +273,8 @@ std::string PostHandler::handleRequest(std::string& request) {
         ret["file"] = content;
         return sendOk(ret.dump());
     } else if (path == adminPath) {
-        std::vector<ServerInfo> server_info = get_back_nodes(Server::bigTableClient);
+        adminClient.initialize();
+        std::vector<ServerMetadata> server_info = adminClient.get_servers_info();
         json ret;
         for (auto server: server_info) {
             json serv;
@@ -283,7 +285,17 @@ std::string PostHandler::handleRequest(std::string& request) {
             serv["type"] = "Backend";
             ret.push_back(serv);
         }
-        //TODO: frontend server status
+        std::vector<std::string> liveFrontends = Server::pingFrontendServers();
+        std::vector<int> frontEnds = Server::frontendServers;
+        int frontendId = 1000;
+        for (auto server: frontEnds) {
+            json serv;
+            serv["id"] = frontendId++;
+            serv["address"] = "localhost:" + std::to_string(server);
+            serv["status"] = (std::find(liveFrontends.begin(), liveFrontends.end(), std::to_string(server)) != liveFrontends.end()) ? "On" : "Off";
+            serv["type"] = "Frontend";
+            ret.push_back(serv);
+        }
         return sendOk(ret.dump());
     } else if (path == adminTogglePath) {
         std::string data = findData(request);
@@ -292,11 +304,12 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string status = j["status"];
         std::string address = j["address"];
         std::string type = j["type"];
+        adminClient.initialize();
         if (type == "Backend") {
             if (status == "on") {
-                turn_off_node(address);
+                adminClient.turn_off_node(address);
             } else {
-                turn_on_node(address);
+                adminClient.turn_on_node(address);
             }
         } else {
             //TODO: toggle frontend
@@ -313,8 +326,9 @@ std::string PostHandler::handleRequest(std::string& request) {
         std::string data = findData(request);
         data = data.substr(0, data.find_last_of('}') + 1);
         json j = json::parse(data);
-        std::string address = j["address"];
-        std::vector<ServerDataPoint> serverData = get_node_data(address);
+        std::string id = j["id"];
+        adminClient.initialize();
+        std::vector<ServerDataPoint> serverData = adminClient.get_server_content(stoi(id));
         json ret;
         for (auto dp: serverData) {
             json dataPoint;
