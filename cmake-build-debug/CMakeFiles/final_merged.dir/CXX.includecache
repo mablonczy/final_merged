@@ -97,14 +97,12 @@ map
 -
 
 /Users/murri/Desktop/FrontEnd/final_merged/PostHandler.cpp
+PostHandler.h
+/Users/murri/Desktop/FrontEnd/final_merged/PostHandler.h
 json.hpp
 /Users/murri/Desktop/FrontEnd/final_merged/json.hpp
 DriveClient.h
 /Users/murri/Desktop/FrontEnd/final_merged/DriveClient.h
-EmailClient.h
-/Users/murri/Desktop/FrontEnd/final_merged/EmailClient.h
-PostHandler.h
-/Users/murri/Desktop/FrontEnd/final_merged/PostHandler.h
 Server.h
 /Users/murri/Desktop/FrontEnd/final_merged/Server.h
 AdminClient.h
@@ -115,6 +113,8 @@ Email.h
 /Users/murri/Desktop/FrontEnd/final_merged/Email.h
 HTMLtoString.h
 /Users/murri/Desktop/FrontEnd/final_merged/HTMLtoString.h
+EmailClient.h
+/Users/murri/Desktop/FrontEnd/final_merged/EmailClient.h
 
 /Users/murri/Desktop/FrontEnd/final_merged/PostHandler.h
 string

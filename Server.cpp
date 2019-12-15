@@ -24,6 +24,7 @@ void Server::startServer(char* portNumber) {
         std::cerr << "Cannot open socket" << std::endl;
         exit(1);
     }
+
     //bind port
     struct sockaddr_in servaddr;
     bzero(&servaddr, sizeof(servaddr));
@@ -34,7 +35,7 @@ void Server::startServer(char* portNumber) {
     //listen
     listen(sockfd, 100);
     pthread_t thread;
-    bigTableClient.initialize("config.txt", 1, true);
+    bigTableClient.initialize("/Users/murri/Desktop/FrontEnd/final_merged/config.txt", 1, true);
     while (true) {
         struct sockaddr_in clientaddr;
         socklen_t clientaddrlen = sizeof(clientaddr);

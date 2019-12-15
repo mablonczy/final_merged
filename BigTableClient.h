@@ -17,6 +17,10 @@
 
 #include "communication.h"
 
+inline std::string CONFIG_PATH = "/Users/murri/Desktop/FrontEnd/final_merged/config.txt";
+inline int NUMBER_OF_PRIMARIES = 1;
+inline bool PRINT_LOGS = false;
+
 inline int SUCCESS =  1;
 inline int FAILURE = -1;
 
@@ -36,7 +40,7 @@ public:
 		PRINT_LOGS = print_logs;
 		number_of_primaries = num_of_primaries;
 		initialize_rand();
-
+        std::cout << "Config file: " << config_file_path << std::endl;
 		int index = 0;
 		std::ifstream config_file(config_file_path);
 		std::string address;
@@ -48,6 +52,7 @@ public:
 			node.address = get_address_from_domain_and_port(node.domain, node.port);
 			cluster_id_to_nodes[index++ % num_of_primaries].push_back(node);
 			nodes.push_back(node);
+			std::cout << "Loading bigtable node: " << node.domain_port << std::endl;
 		} 
 	}
 

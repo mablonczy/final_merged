@@ -24,9 +24,7 @@
 #include "EmailClient.h"
 EmailClient email_client_obj;
 email_client_obj.initialize();
-std::string CONFIG_PATH = "./config.txt";
-int NUMBER_OF_PRIMARIES = 1;
-bool PRINT_LOGS = false;
+
 std::string colName = "METADATA";
 //BigTableClient bigTable;
 

@@ -3,10 +3,10 @@
 
 #include <sys/time.h>
 #include "BigTableClient.h"
-
-std::string CONFIG_PATH = "./config.txt";
-int NUMBER_OF_PRIMARIES = 1;
-bool PRINT_LOGS = true;
+//
+//std::string CONFIG_PATH = "/Users/murri/Desktop/FrontEnd/final_merged/config.txt";
+//int NUMBER_OF_PRIMARIES = 1;
+//bool PRINT_LOGS = true;
 
 const std::string _DRIVE = "_DRIVE";
 std::string FILETREE = "FILETREE";

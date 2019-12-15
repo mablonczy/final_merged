@@ -5,7 +5,6 @@
 #ifndef FINAL_SERVER_H
 #define FINAL_SERVER_H
 
-
 #include "BigTableClient.h"
 
 class Server {

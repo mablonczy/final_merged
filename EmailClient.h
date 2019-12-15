@@ -1,6 +1,6 @@
-//
-// Created by Kanika Prasad Nadkarni on 11/19/19.
-//
+#ifndef EMAIL_CLIENT_H_
+#define EMAIL_CLIENT_H_
+
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,9 +24,7 @@ using namespace std;
 
 #define N 4096
 int MAX_MESSAGE_LENGTH  = 2000;
-//std::string CONFIG_PATH = "./config.txt";
-//int NUMBER_OF_PRIMARIES = 1;
-//bool PRINT_LOGS = false;
+
 inline bool charcomparek(char a, char b)
 {
     return(toupper(a) == toupper(b));
@@ -76,10 +74,7 @@ public:
             std::istringstream currentMailStream(currentEmail);
             std::string tempLine;
             Email obj;
-            while (getline(currentMailStream,tempLine))
-            {
-                std::cout << "Mailbox line: " << tempLine << std::endl;
-
+            while (getline(currentMailStream,tempLine)) {
                 if (tempLine.substr(0, 6) == "From: ") {
                     obj.sender=tempLine.substr(6,std::string::npos);
                 }
@@ -147,29 +142,19 @@ public:
             std::string recepient_row_id = recepient_username + ROW_ID;
             std::cout << "**** Sending email to: " << recepient_username  << " " << recepient_row_id <<  std::endl;
             if (recepient_domain == PENNCLOUD_DOMAIN){
-                std::cout << "****  This is a penncloud email " << std::endl;
                 int ret = putEmail_in_Penncloud(recepient_row_id, recepient_email, email);
                 if (ret != SUCCESS) {
                     return "BACKEND_DEAD";
                 }
             }
-            else
-            {
-                std::vector <std::string>recepient_new;
-                recepient_new.push_back(email.recepients[i]);
-                Email email_with_external_recepient_email(email.sender,email.timestamp,recepient_new, email.content,email.subject);
-
-                queue_emails_for_externalservers.push(email_with_external_recepient_email);
+            else {
+                int ret = send_email_to_external_server(recepient_email, email);
             }
         }
         return "SUCCESS";
     }
 
-    void send_email_to_external_server()
-    {
-        if(queue_emails_for_externalservers.empty())
-            return;
-        Email email=queue_emails_for_externalservers.front();
+    int send_email_to_external_server(std::string recepient_email, Email email) {
 
         u_char nsbuf[N];
         char dispbuf[N];
@@ -177,34 +162,30 @@ public:
         ns_rr rr;
         int i, l,msg_len;
 
-        std::string recepient_email = email.recepients[0];
         int separator_index = recepient_email.find("@");
-
         std::string recepient_username = recepient_email.substr(0, separator_index);
         std::string recepient_domain = recepient_email.substr(separator_index + 1, std::string::npos);
-        printf("Domain : %s\n", recepient_domain.c_str());
+        printf("EXTERNAL EMAIL SEND TO DOMAIN: %s\n", recepient_domain.c_str());
 
         // MX RECORD
         int minpriority=1000;
         std::string serverNameTest;
 
         char serverName[NS_MAXDNAME];
-        printf("MX records : \n");//ns_c_any
         l = res_query(recepient_domain.c_str(), ns_c_any, ns_t_mx, nsbuf, sizeof(nsbuf));
         msg_len=l;
-        if (l < 0)
-        {
-            perror(recepient_domain.c_str());
-            queue_emails_for_externalservers.pop(); //pop since no mX records of domain found
-            return;
+
+        if (l < 0) {
+            std::cout << "Error: Could not find MX Records" << std::endl;
+            return -1;
         }
         else
         {
-#ifdef USE_PQUERY
+        #ifdef USE_PQUERY
             /* this will give lots of detailed info on the request and reply */
-      res_pquery(&_res, nsbuf, l, stdout);
+            res_pquery(&_res, nsbuf, l, stdout);
 
-#else
+        #else
             /* just grab the MX answer info */
             ns_initparse(nsbuf, l, &msg);
             l = ns_msg_count(msg, ns_s_an);
@@ -220,7 +201,7 @@ public:
                 const uint16_t pri = ns_get16(rdata);
                 int len = dn_expand(nsbuf, nsbuf + msg_len, rdata + 2, exchange, sizeof(exchange));
 
-                printf("Pri->%d\n", pri);
+                //printf("Pri->%d\n", pri);
                 if(pri<minpriority)
                 {
                     minpriority=pri;
@@ -243,7 +224,7 @@ public:
 #endif
         }
 
-        std::cout << "----> Final server name: " << serverNameTest << std::endl;
+        std::cout << "EXTERNAL EMAIL: Final server name: " << serverNameTest << std::endl;
 
 
         int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -266,7 +247,7 @@ public:
         int connection_ret= connect(sockfd, (struct sockaddr*)&address, sizeof(address));
         if (connection_ret < 0) {
             std::cout << "Error connecting..." << std::endl;
-            return;
+            return -1;
         }
         else{
             std::cout << "Connected" << std::endl;
@@ -295,7 +276,6 @@ public:
                 {
                     aks.push_back(ch);
                 }
-
             }
             cout<<"buff="<<buff<<"\n";
             sleep(1);
@@ -326,36 +306,34 @@ public:
             {
                 string datastr="DATA\r\n";
                 write(sockfd, datastr.c_str(), datastr.length());
-
-
                 stage=5;
             }
             else if (comparek(substrk,"354 ")&&stage==5)
             {
                 string datastr=serialize_email(email, email.recepients[0]);
+                datastr += "\r\n";
                 cout<<"datastr="<<datastr<<"\n";
                 write(sockfd, datastr.c_str(), datastr.length());
+                std::cout << "Sent email" << std::endl;
 
                 datastr=".\r\n";
-                cout<<"datastr="<<datastr<<"\n";
+                cout<<"datastr = "<<datastr<<"\n";
                 write(sockfd, datastr.c_str(), datastr.length());
-
-                stage=6;
+                stage = 7;
             }
-            else if(comparek(substrk,"250 ")&&stage==6)
+            else if (comparek(substrk,"354 ") && stage == 6) {
+
+            }
+            else if(comparek(substrk,"250 ") && stage == 7)
             {
                 string quitstr="QUIT\r\n";
                 cout<<"quitstr="<<quitstr<<"\n";
                 write(sockfd, quitstr.c_str(), quitstr.length());
-                stage=7;
                 break;
             }
         }
-
         close(sockfd);
-        if(stage==7)
-            queue_emails_for_externalservers.pop();
-
+        return 1;
     }
 private:
 
@@ -369,7 +347,7 @@ private:
         std::string email_content;
         email_content += "From: " + email.sender + NEW_LINE;
         email_content += "To: " + recepient_email + NEW_LINE;
-        email_content += "Date: " +  get_current_time() + NEW_LINE;
+        email_content += "Date: " +  get_current_time();
         email_content += "Subject: " + email.subject + NEW_LINE;
         email_content += email.content + NEW_LINE;
         return email_content;
@@ -423,4 +401,4 @@ private:
     }
 };
 
-
+#endif
