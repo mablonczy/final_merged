@@ -111,12 +111,13 @@
             $('#displayTable').on('click', '.toggleButton', function (event) {
                 var status = $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text();
                 var address = $(event.currentTarget.parentElement.parentElement).find('.serverAddress').text();
+                var id = $(event.currentTarget.parentElement.parentElement).find('.serverId').text();
                 var type = $(event.currentTarget.parentElement.parentElement).find('.serverType').text();
                 console.log(status)
                 console.log(type)
                 if (type === "Backend") {
                     if (status === "On") {
-                        $.post("/web/admin/toggle", '{"status":"on", "address":"' + address + '", "type":"' + type + '"}', function (data) {
+                        $.post("/web/admin/toggle", '{"status":"on", "id":"' + id + '", "type":"' + type + '"}', function (data) {
                             $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("Off")
                         }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
                             if (XMLHttpRequest.readyState == 0) {
@@ -125,7 +126,7 @@
                             }
                         });
                     } else {
-                        $.post("/web/admin/toggle", '{"status":"off", "address":"' + address + '", "type":"' + type + '"}', function (data) {
+                        $.post("/web/admin/toggle", '{"status":"off", "id":"' + id + '", "type":"' + type + '"}', function (data) {
                             $(event.currentTarget.parentElement.parentElement).find('.serverStatus').text("On")
                         }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
                             if (XMLHttpRequest.readyState == 0) {

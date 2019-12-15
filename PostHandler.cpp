@@ -303,15 +303,15 @@ std::string PostHandler::handleRequest(std::string& request) {
         data = data.substr(0, data.find_last_of('}') + 1);
         json j = json::parse(data);
         std::string status = j["status"];
-        std::string address = j["address"];
+        std::string id = j["id"];
         std::string type = j["type"];
         adminClient.initialize();
         //frontend nodes are handled by LB, not server
         if (type == "Backend") {
             if (status == "on") {
-                adminClient.turn_off_node(address);
+                adminClient.turn_off_node(stoi(id));
             } else {
-                adminClient.turn_on_node(address);
+                adminClient.turn_on_node(stoi(id));
             }
         }
         json p;
