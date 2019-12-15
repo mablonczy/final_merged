@@ -9,20 +9,17 @@
 #include "PostHandler.h"
 #include "Writer.h"
 
-bool fuck = false;
-
 void* ThreadHandler::worker(void *args) {
     pthread_detach(pthread_self());
     int fd = *(int*) args;
-    //10 MB buffer
+    //50 MB buffer
     char* buf = new char[50000000];
     int rcvd = do_read(fd, buf, 50000000);
     std::string request(buf, rcvd);
     delete[] buf;
-    std::cerr << request << std::endl;
+    std::cerr << request.substr(0, request.length() > 1000 ? 1000 : request.length()) << std::endl;
     std::string request_type = request.substr(0, request.find_first_of(' '));
     if (request_type == "GET") {
-        fuck = true;
         //get response string
         //send response string to fd
         GetHandler getHandler;
@@ -32,8 +29,9 @@ void* ThreadHandler::worker(void *args) {
         PostHandler postHandler;
         std::string response = postHandler.handleRequest(request);
         Writer::do_write(fd, response.c_str(), response.length());
-    } else if (request_type == "HEAD") {
-        // do I even need this?
+    } else if (request_type == "ALIVE?") {
+        std::string response = "YES";
+        Writer::do_write(fd, response.c_str(), response.length());
     } else {
         //invalid - request not implemented
     }
@@ -52,7 +50,7 @@ int ThreadHandler::do_read(int fd, char* buf, int len) {
         rcvd += n;
         if (firstRead) {
             std::string first(buf, rcvd);
-            if (first.substr(0, 3) == "GET" || first.substr(first.size() - 10).find('}') != std::string::npos) {
+            if (n <= 0 || first.substr(0, 3) == "GET" || first == "ALIVE?" || first.substr(first.size() - 10).find('}') != std::string::npos) {
                 return rcvd;
             }
             firstRead = false;
@@ -66,11 +64,11 @@ int ThreadHandler::do_read(int fd, char* buf, int len) {
     }
 }
 
-int ThreadHandler::find_end(char* buf, int len) {
-    for (int i = 0; i < len - 1; i++) {
-        if (buf[i] == '\r' && buf[i + 1] == '\n') {
-            return i + 1;
-        }
-    }
-    return -1;
-}
+//int ThreadHandler::find_end(char* buf, int len) {
+//    for (int i = 0; i < len - 1; i++) {
+//        if (buf[i] == '\r' && buf[i + 1] == '\n') {
+//            return i + 1;
+//        }
+//    }
+//    return -1;
+//}

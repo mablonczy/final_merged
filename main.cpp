@@ -4,5 +4,5 @@
 int main(int argc, char *argv[])
 {
     Server s;
-    s.startServer();
+    s.startServer(argv[1]);
 }

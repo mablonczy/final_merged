@@ -44,6 +44,12 @@
                 }
                 return returnArray;
             }
+            function redirectServerDown() {
+                $.post("http://localhost:5555/web", function (data) {
+                    console.log(data);
+                    window.location.href = "http://localhost:" + data.location + "/web";
+                });
+            }
             $('.toast').toast();
             $('#loginForm').on('submit', function (event) {
                 event.preventDefault();
@@ -52,6 +58,17 @@
                         $('#invalidLoginModal').modal('show')
                     } else if (data.message === "PASS") {
                         window.location.replace("/web/home")
+                    }
+                }).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.readyState == 4) {
+                        // HTTP error (can be checked by XMLHttpRequest.status and XMLHttpRequest.statusText)
+                    }
+                    else if (XMLHttpRequest.readyState == 0) {
+                        console.log("Server unavailable.")
+                        redirectServerDown();
+                    }
+                    else {
+                        // something weird is happening
                     }
                 });
             });

@@ -11,6 +11,7 @@
 #include "userHandler.h"
 #include "email.h"
 #include "admin.h"
+#include "HTMLtoString.h"
 
 using json = nlohmann::json;
 
@@ -278,7 +279,8 @@ std::string PostHandler::handleRequest(std::string& request) {
             serv["id"] = server.id;
             serv["address"] = server.address;
             serv["load"] = server.load;
-            serv["status"] = server.on;
+            serv["status"] = server.on ? "On" : "Off";
+            serv["type"] = "Backend";
             ret.push_back(serv);
         }
         //TODO: frontend server status
@@ -299,9 +301,9 @@ std::string PostHandler::handleRequest(std::string& request) {
         } else {
             //TODO: toggle frontend
             if (status == "on") {
-
+                //send to other server to turn off
             } else {
-
+                //send to other server to turn on
             }
         }
         json p;
@@ -319,6 +321,7 @@ std::string PostHandler::handleRequest(std::string& request) {
             dataPoint["row"] = dp.row;
             dataPoint["col"] = dp.col;
             dataPoint["data"] = dp.partialData;
+            ret.push_back(dataPoint);
         }
         return sendOk(ret.dump());
     }
@@ -372,6 +375,6 @@ std::string PostHandler::sendOk(const std::string& data) {
 }
 
 std::string PostHandler::sendFail() {
-    return "HTTP/1.1 503 Service Unavailable\r\n";
+    return HTMLtoString::serversDown();
 }
 

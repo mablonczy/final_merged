@@ -12,8 +12,8 @@ class Server {
 
 public:
     static BigTableClient bigTableClient;
-    bool run = true;
-    void startServer();
+    static bool run;
+    void startServer(char* portNumber);
 };
 
 

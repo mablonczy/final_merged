@@ -10,9 +10,10 @@
 #include "ThreadHandler.h"
 
 BigTableClient Server::bigTableClient;
+bool Server::run = true;
 
-void Server::startServer() {
-    int port_num = 5051;
+void Server::startServer(char* portNumber) {
+    int port_num = atoi(portNumber);
     //open socket
     int sockfd = socket(PF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -36,10 +37,6 @@ void Server::startServer() {
         //accept connection
         int comm_fd = accept(sockfd, (struct sockaddr *) &clientaddr, &clientaddrlen);
         std::cerr << "[" << comm_fd << "] " << "New connection" << std::endl;
-//        char message[] = "+OK Server ready (Author: Mate Zsolt Ablonczy / ablonczy)\r\n";
-//        Writer::do_write(comm_fd, message, sizeof(message)-1);
-//        cerr << "[" << comm_fd << "] S: " << message;
-        //create worker thread to do the reading and writing
         pthread_create(&thread, NULL, ThreadHandler::worker, &comm_fd);
     }
     close(sockfd);

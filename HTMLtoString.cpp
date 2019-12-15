@@ -15,7 +15,7 @@ std::string HTMLtoString::goodRequest(const std::string& page, bool allocateCook
         std::random_device randomDevice;
         cookie = "Set-Cookie: penncloud-session=" + std::to_string(randomDevice()) + "\r\n";
     }
-    std::string response = "HTTP/1.1 200 Okay\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
+    std::string response = "HTTP/1.1 200 Okay\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "Access-Control-Allow-Origin: *\r\n\r\n";
     response.append(htmlPage);
     return response;
 }
@@ -32,6 +32,14 @@ std::string HTMLtoString::badRequest() {
     std::string htmlPage = readHTML("resources/dne.html");
     std::string cookie;
     std::string response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
+    response.append(htmlPage);
+    return response;
+}
+
+std::string HTMLtoString::serversDown() {
+    std::string htmlPage = readHTML("resources/serversDown.html");
+    std::string cookie;
+    std::string response = "HTTP/1.1 503 Service Unavailable\r\nContent-Type: text/html\r\nContent-length: " + std::to_string(htmlPage.length()) + "\r\n" + cookie + "\r\n";
     response.append(htmlPage);
     return response;
 }
