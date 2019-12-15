@@ -61,7 +61,7 @@ public:
 
         std::string metadataContent;
         int metadata_return = bigTable.get(rowName, METADATA_COL, metadataContent);
-        if (metadata_return == FAILURE || metadataContent == EMPTY_DATA) metadataContent = "";
+        if (metadata_return == FAILURE || metadataContent.find(EMPTY_DATA) != std::string::npos) metadataContent = "";
 
         std::cout << "Listing Metadata: " << metadataContent << std::endl;
 
@@ -400,7 +400,7 @@ private:
     {
         std::string metadata_content;
         int metadata_return = bigTable.get(recepient_row_id, METADATA_COL, metadata_content);
-        if (metadata_return == FAILURE || metadata_content == EMPTY_DATA) metadata_content = "";
+        if (metadata_return == FAILURE || metadata_content.find(EMPTY_DATA) != std::string::npos) metadata_content = "";
 
         std::cout << "Metadata: " << metadata_content << std::endl;
 
